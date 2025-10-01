@@ -1,0 +1,117 @@
+// ============================================
+// PRISMA SCHEMA - Sistema Residencial Marianela
+// ============================================
+// Este archivo define la estructura de la base de datos
+// Prisma generará automáticamente:
+// - Tipos TypeScript
+// - Queries type-safe
+// - Migraciones SQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// MODELOS DE AUTENTICACIÓN Y SEGURIDAD
+// ============================================
+
+/// Roles de usuario en el sistema
+model Rol {
+  idRol         Int       @id @default(autoincrement()) @map("id_rol")
+  nombreRol     String    @unique @map("nombre_rol") @db.VarChar(50)
+  descripcion   String?   @db.Text
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  usuarios      Usuario[]
+
+  @@map("roles")
+}
+
+/// Usuarios del sistema (vecinos y administradores)
+model Usuario {
+  idUsuario              Int       @id @default(autoincrement()) @map("id_usuario")
+  nombreCompleto         String    @map("nombre_completo") @db.VarChar(255)
+  correoElectronico      String    @unique @map("correo_electronico") @db.VarChar(255)
+  contrasenaHash         String    @map("contrasena_hash") @db.VarChar(255)
+  idRol                  Int       @map("id_rol")
+  estadoCuenta           String    @default("pendiente") @map("estado_cuenta") @db.VarChar(50) // pendiente, activo, suspendido, rechazado
+  fechaRegistro          DateTime  @default(now()) @map("fecha_registro")
+  fechaAprobacion        DateTime? @map("fecha_aprobacion")
+  fechaUltimoAcceso      DateTime? @map("fecha_ultimo_acceso")
+  tokenRecuperacion      String?   @map("token_recuperacion") @db.VarChar(255)
+  tokenRecuperacionExpira DateTime? @map("token_recuperacion_expira")
+  intentosFallidos       Int       @default(0) @map("intentos_fallidos")
+  bloqueadoHasta         DateTime? @map("bloqueado_hasta")
+  creadoEn               DateTime  @default(now()) @map("creado_en")
+  actualizadoEn          DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  rol                    Rol       @relation(fields: [idRol], references: [idRol])
+  historialOperaciones   HistorialOperacion[]
+  sesionesActivas        SesionActiva[]
+
+  @@index([correoElectronico])
+  @@index([estadoCuenta])
+  @@map("usuarios")
+}
+
+/// Solicitudes de registro pendientes de aprobación por administrador
+model SolicitudRegistro {
+  idSolicitud       Int       @id @default(autoincrement()) @map("id_solicitud")
+  nombreCompleto    String    @map("nombre_completo") @db.VarChar(255)
+  correoElectronico String    @map("correo_electronico") @db.VarChar(255)
+  estado            String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  fechaSolicitud    DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRevision     DateTime? @map("fecha_revision")
+  idRevisor         Int?      @map("id_revisor")
+  comentarios       String?   @db.Text
+  creadoEn          DateTime  @default(now()) @map("creado_en")
+  actualizadoEn     DateTime  @updatedAt @map("actualizado_en")
+
+  @@map("solicitudes_registro")
+}
+
+/// Historial completo de operaciones para auditoría (Requerimiento AS_06)
+model HistorialOperacion {
+  idOperacion      Int       @id @default(autoincrement()) @map("id_operacion")
+  idUsuario        Int       @map("id_usuario")
+  tipoOperacion    String    @map("tipo_operacion") @db.VarChar(100) // login, logout, registro, modificacion, transaccion
+  descripcion      String    @db.Text
+  ipAddress        String?   @map("ip_address") @db.VarChar(45)
+  userAgent        String?   @map("user_agent") @db.Text
+  datosAdicionales Json?     @map("datos_adicionales") @db.JsonB
+  fechaOperacion   DateTime  @default(now()) @map("fecha_operacion")
+
+  // Relaciones
+  usuario          Usuario   @relation(fields: [idUsuario], references: [idUsuario])
+
+  @@index([idUsuario])
+  @@index([fechaOperacion])
+  @@map("historial_operaciones")
+}
+
+/// Sesiones JWT activas para rastreo y revocación
+model SesionActiva {
+  idSesion        Int       @id @default(autoincrement()) @map("id_sesion")
+  idUsuario       Int       @map("id_usuario")
+  tokenHash       String    @map("token_hash") @db.VarChar(255)
+  ipAddress       String?   @map("ip_address") @db.VarChar(45)
+  userAgent       String?   @map("user_agent") @db.Text
+  fechaInicio     DateTime  @default(now()) @map("fecha_inicio")
+  fechaExpiracion DateTime  @map("fecha_expiracion")
+  activo          Boolean   @default(true)
+
+  // Relaciones
+  usuario         Usuario   @relation(fields: [idUsuario], references: [idUsuario])
+
+  @@index([idUsuario])
+  @@index([activo])
+  @@map("sesiones_activas")
+}
