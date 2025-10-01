@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import houseImage from '../assets-mapa/casa-temp.png';
+import houseImage from '../../home/assets-mapa/casa-temp.png';
 
 export type HouseStatus = 'al_dia' | 'especial' | 'pendiente' | 'extra';
 

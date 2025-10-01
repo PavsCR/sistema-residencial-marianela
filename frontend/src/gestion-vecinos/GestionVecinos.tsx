@@ -1,26 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './GestionVecinos.css';
-
-interface House {
-  id: string;
-  status: 'al_dia' | 'especial' | 'pendiente' | 'extra';
-}
-
-const houses: House[] = [
-  { id: 'A1', status: 'al_dia' },
-  { id: 'A2', status: 'al_dia' },
-  { id: 'A3', status: 'pendiente' },
-  { id: 'A4', status: 'al_dia' },
-  { id: 'A5', status: 'especial' },
-  { id: 'A6', status: 'al_dia' },
-  { id: 'B1', status: 'al_dia' },
-  { id: 'B2', status: 'extra' },
-  { id: 'B3', status: 'al_dia' },
-  { id: 'B4', status: 'pendiente' },
-  { id: 'B5', status: 'al_dia' },
-  { id: 'B6', status: 'especial' },
-];
+import { houses } from '../shared/data/houses';
 
 const GestionVecinos = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +35,7 @@ const GestionVecinos = () => {
             onClick={() => handleHouseClick(house.id)}
           >
             <h3>Casa {house.id}</h3>
+            <p>Estado: {house.status}</p>
           </div>
         ))}
       </div>
