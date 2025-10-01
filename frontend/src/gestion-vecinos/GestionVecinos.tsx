@@ -35,7 +35,6 @@ const GestionVecinos = () => {
             onClick={() => handleHouseClick(house.id)}
           >
             <h3>Casa {house.id}</h3>
-            <p>Estado: {house.status}</p>
           </div>
         ))}
       </div>
