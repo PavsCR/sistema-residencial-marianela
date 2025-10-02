@@ -11,6 +11,7 @@ import {
   solicitarRecuperacion,
   restablecerContrasena,
   obtenerPerfil,
+  obtenerMiCasa,
   validacionRegistro,
   validacionLogin,
   validacionSolicitarRecuperacion,
@@ -42,6 +43,9 @@ router.post('/restablecer-contrasena', validacionRestablecerContrasena, restable
 
 // Obtener perfil del usuario autenticado
 router.get('/perfil', authenticateToken, obtenerPerfil);
+
+// Obtener información de la casa del usuario
+router.get('/mi-casa', authenticateToken, obtenerMiCasa);
 
 // TODO: Agregar más rutas protegidas según sea necesario
 // - Cambiar contraseña estando autenticado

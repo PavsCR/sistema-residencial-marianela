@@ -5,7 +5,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import authRoutes from './routes/auth.routes';
+import authRoutes from './routes/autenticacion-seguridad/auth.routes';
+import solicitudesRoutes from './routes/solicitudes/solicitudes.routes';
 
 const app = express();
 
@@ -22,7 +23,8 @@ app.get('/health', (req, res) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/usuarios', authRoutes);
+app.use('/api/solicitudes', solicitudesRoutes);
 
 // 404 handler
 app.use((req, res) => {

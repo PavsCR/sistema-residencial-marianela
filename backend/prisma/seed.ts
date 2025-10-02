@@ -52,21 +52,77 @@ async function main() {
   console.log(`   - ${rolVecino.nombreRol} (ID: ${rolVecino.idRol})\n`);
 
   // ============================================
-  // 2. CREAR USUARIO SUPER ADMIN (OBLIGATORIO)
+  // 2. CREAR CASAS DEL RESIDENCIAL (0-120)
+  // ============================================
+  console.log('🏠 Creando casas del residencial...');
+
+  const casasExistentes = await prisma.casa.count();
+
+  if (casasExistentes === 0) {
+    const casasData = [];
+    // Casa 0 para casos especiales (admins que no viven en el residencial)
+    casasData.push({
+      numeroCasa: '0',
+      estadoPago: 'al_dia',
+    });
+
+    // Casas 1-120
+    for (let i = 1; i <= 120; i++) {
+      casasData.push({
+        numeroCasa: i.toString(),
+        estadoPago: 'al_dia',
+      });
+    }
+
+    await prisma.casa.createMany({
+      data: casasData,
+      skipDuplicates: true,
+    });
+
+    console.log('✅ 121 casas creadas (0-120)\n');
+  } else {
+    // Verificar si existe casa 0
+    const casa0 = await prisma.casa.findFirst({
+      where: { numeroCasa: '0' },
+    });
+
+    if (!casa0) {
+      await prisma.casa.create({
+        data: {
+          numeroCasa: '0',
+          estadoPago: 'al_dia',
+        },
+      });
+      console.log('✅ Casa 0 creada para casos especiales\n');
+    } else {
+      console.log(`✅ Ya existen ${casasExistentes} casas en la base de datos\n`);
+    }
+  }
+
+  // ============================================
+  // 3. CREAR USUARIO SUPER ADMIN (OBLIGATORIO)
   // ============================================
   console.log('👑 Verificando usuario Super Admin...');
+
+  // Obtener la casa 100
+  const casa100 = await prisma.casa.findFirst({
+    where: { numeroCasa: '100' },
+  });
 
   // Contraseña por defecto (debería cambiarse en primera instalación)
   const contrasenaHash = await bcrypt.hash('SuperAdmin2025!', 12);
 
   const superAdminUsuario = await prisma.usuario.upsert({
     where: { correoElectronico: 'superadmin@residencialmarianela.com' },
-    update: {}, // Si ya existe, no hacer nada
+    update: {
+      idCasa: casa100?.idCasa,
+    },
     create: {
       nombreCompleto: 'Super Administrador',
       correoElectronico: 'superadmin@residencialmarianela.com',
       contrasenaHash: contrasenaHash,
       idRol: rolSuperAdmin.idRol,
+      idCasa: casa100?.idCasa,
       estadoCuenta: 'activo',
       fechaAprobacion: new Date(),
     },
@@ -74,6 +130,7 @@ async function main() {
 
   console.log('✅ Usuario Super Admin verificado:');
   console.log(`   - Email: ${superAdminUsuario.correoElectronico}`);
+  console.log(`   - Casa: ${casa100?.numeroCasa || 'No asignada'}`);
   console.log(`   - Contraseña: SuperAdmin2025!`);
   console.log(`   - ⚠️  CAMBIAR CONTRASEÑA EN PRODUCCIÓN!\n`);
 

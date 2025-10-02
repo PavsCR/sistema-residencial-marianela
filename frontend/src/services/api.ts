@@ -7,7 +7,6 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  message: string;
   token: string;
   user: {
     id: number;
@@ -17,9 +16,23 @@ export interface LoginResponse {
   };
 }
 
+// Función para hacer peticiones autenticadas
+export const authFetch = (url: string, options: RequestInit = {}): Promise<Response> => {
+  const token = localStorage.getItem('token');
+
+  return fetch(`${API_URL}${url}`, {
+    ...options,
+    headers: {
+      ...options.headers,
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
 export const authService = {
   async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${API_URL}/usuarios/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -32,6 +45,17 @@ export const authService = {
       throw new Error(error.message || 'Error al iniciar sesión');
     }
 
-    return response.json();
+    const result = await response.json();
+
+    // Adaptar respuesta del backend al formato del frontend
+    return {
+      token: result.data.token,
+      user: {
+        id: result.data.usuario.idUsuario,
+        nombre: result.data.usuario.nombreCompleto,
+        correo: result.data.usuario.correoElectronico,
+        rol: result.data.usuario.rol,
+      },
+    };
   },
 };

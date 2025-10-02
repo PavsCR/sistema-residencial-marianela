@@ -20,6 +20,20 @@ datasource db {
 // MODELOS DE AUTENTICACIÓN Y SEGURIDAD
 // ============================================
 
+/// Casas del residencial
+model Casa {
+  idCasa        Int       @id @default(autoincrement()) @map("id_casa")
+  numeroCasa    String    @unique @map("numero_casa") @db.VarChar(10)
+  estadoPago    String    @default("al_dia") @map("estado_pago") @db.VarChar(50) // al_dia, moroso, en_arreglo
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  usuarios      Usuario[]
+
+  @@map("casas")
+}
+
 /// Roles de usuario en el sistema
 model Rol {
   idRol         Int       @id @default(autoincrement()) @map("id_rol")
@@ -39,8 +53,10 @@ model Usuario {
   idUsuario              Int       @id @default(autoincrement()) @map("id_usuario")
   nombreCompleto         String    @map("nombre_completo") @db.VarChar(255)
   correoElectronico      String    @unique @map("correo_electronico") @db.VarChar(255)
+  telefono               String?   @map("telefono") @db.VarChar(20)
   contrasenaHash         String    @map("contrasena_hash") @db.VarChar(255)
   idRol                  Int       @map("id_rol")
+  idCasa                 Int?      @map("id_casa")
   estadoCuenta           String    @default("pendiente") @map("estado_cuenta") @db.VarChar(50) // pendiente, activo, suspendido, rechazado
   fechaRegistro          DateTime  @default(now()) @map("fecha_registro")
   fechaAprobacion        DateTime? @map("fecha_aprobacion")
@@ -54,11 +70,13 @@ model Usuario {
 
   // Relaciones
   rol                    Rol       @relation(fields: [idRol], references: [idRol])
+  casa                   Casa?     @relation(fields: [idCasa], references: [idCasa])
   historialOperaciones   HistorialOperacion[]
   sesionesActivas        SesionActiva[]
 
   @@index([correoElectronico])
   @@index([estadoCuenta])
+  @@index([idCasa])
   @@map("usuarios")
 }
 
@@ -67,6 +85,9 @@ model SolicitudRegistro {
   idSolicitud       Int       @id @default(autoincrement()) @map("id_solicitud")
   nombreCompleto    String    @map("nombre_completo") @db.VarChar(255)
   correoElectronico String    @map("correo_electronico") @db.VarChar(255)
+  telefono          String?   @map("telefono") @db.VarChar(20)
+  numeroCasa        String    @default("0") @map("numero_casa") @db.VarChar(10)
+  contrasenaHash    String    @map("contrasena_hash") @db.VarChar(255)
   estado            String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
   fechaSolicitud    DateTime  @default(now()) @map("fecha_solicitud")
   fechaRevision     DateTime? @map("fecha_revision")

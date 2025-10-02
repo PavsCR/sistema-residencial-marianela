@@ -35,7 +35,7 @@ export const registrarSolicitud = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const { nombreCompleto, correoElectronico, contrasena } = req.body;
+    const { nombreCompleto, correoElectronico, telefono, numeroCasa, contrasena } = req.body;
 
     // Validar fortaleza de contraseña
     const passwordValidation = validatePasswordStrength(contrasena);
@@ -44,6 +44,19 @@ export const registrarSolicitud = async (req: Request, res: Response): Promise<v
         success: false,
         message: 'La contraseña no cumple con los requisitos de seguridad',
         errors: passwordValidation.errors,
+      });
+      return;
+    }
+
+    // Validar que el número de casa existe
+    const casa = await prisma.casa.findFirst({
+      where: { numeroCasa: numeroCasa.toString() },
+    });
+
+    if (!casa) {
+      res.status(400).json({
+        success: false,
+        message: 'Número de casa inválido',
       });
       return;
     }
@@ -77,11 +90,17 @@ export const registrarSolicitud = async (req: Request, res: Response): Promise<v
       return;
     }
 
+    // Hashear contraseña
+    const contrasenaHash = await hashPassword(contrasena);
+
     // Crear solicitud de registro
     const solicitud = await prisma.solicitudRegistro.create({
       data: {
         nombreCompleto,
         correoElectronico,
+        telefono,
+        numeroCasa,
+        contrasenaHash,
         estado: 'pendiente',
       },
     });
@@ -400,6 +419,7 @@ export const obtenerPerfil = async (req: Request, res: Response): Promise<void> 
         idUsuario: true,
         nombreCompleto: true,
         correoElectronico: true,
+        telefono: true,
         estadoCuenta: true,
         fechaRegistro: true,
         fechaUltimoAcceso: true,
@@ -434,6 +454,62 @@ export const obtenerPerfil = async (req: Request, res: Response): Promise<void> 
 };
 
 /**
+ * OBTENER INFORMACIÓN DE LA CASA DEL USUARIO
+ */
+export const obtenerMiCasa = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: 'No autenticado',
+      });
+      return;
+    }
+
+    const usuario = await prisma.usuario.findUnique({
+      where: { idUsuario: req.user.idUsuario },
+      include: {
+        casa: {
+          include: {
+            usuarios: {
+              select: {
+                idUsuario: true,
+                nombreCompleto: true,
+                correoElectronico: true,
+                telefono: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!usuario || !usuario.casa) {
+      res.status(404).json({
+        success: false,
+        message: 'No estás asignado a ninguna casa',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        numeroCasa: usuario.casa.numeroCasa,
+        estadoPago: usuario.casa.estadoPago,
+        miembros: usuario.casa.usuarios,
+      },
+    });
+  } catch (error) {
+    console.error('Error en obtenerMiCasa:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener información de la casa',
+    });
+  }
+};
+
+/**
  * VALIDADORES DE EXPRESS-VALIDATOR
  */
 export const validacionRegistro = [
@@ -448,8 +524,18 @@ export const validacionRegistro = [
     .notEmpty()
     .withMessage('El correo electrónico es obligatorio')
     .isEmail()
-    .withMessage('Debe ser un correo electrónico válido')
-    .normalizeEmail(),
+    .withMessage('Debe ser un correo electrónico válido'),
+  body('telefono')
+    .optional()
+    .trim()
+    .matches(/^(\+506)?[0-9]{8}$/)
+    .withMessage('El teléfono debe tener 8 dígitos o incluir +506 seguido de 8 dígitos'),
+  body('numeroCasa')
+    .notEmpty()
+    .withMessage('El número de casa es obligatorio')
+    .trim()
+    .isInt({ min: 0, max: 120 })
+    .withMessage('El número de casa debe ser un número entre 0 y 120'),
   body('contrasena')
     .notEmpty()
     .withMessage('La contraseña es obligatoria')
@@ -463,8 +549,7 @@ export const validacionLogin = [
     .notEmpty()
     .withMessage('El correo electrónico es obligatorio')
     .isEmail()
-    .withMessage('Debe ser un correo electrónico válido')
-    .normalizeEmail(),
+    .withMessage('Debe ser un correo electrónico válido'),
   body('contrasena')
     .notEmpty()
     .withMessage('La contraseña es obligatoria'),
@@ -476,8 +561,7 @@ export const validacionSolicitarRecuperacion = [
     .notEmpty()
     .withMessage('El correo electrónico es obligatorio')
     .isEmail()
-    .withMessage('Debe ser un correo electrónico válido')
-    .normalizeEmail(),
+    .withMessage('Debe ser un correo electrónico válido'),
 ];
 
 export const validacionRestablecerContrasena = [

@@ -113,6 +113,31 @@
   font-weight: 600;
 }
 
+.navbar-logout-btn {
+  background: none;
+  border: none;
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.navbar-logout-btn:hover {
+  color: #ff4444;
+  background-color: rgba(255, 68, 68, 0.1);
+}
+
+.navbar-logout-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .navbar-container {
@@ -150,6 +175,15 @@
   .navbar-link {
     font-size: 12px;
     padding: 0 0.3rem;
+  }
+
+  .navbar-logout-btn {
+    padding: 0.4rem;
+  }
+
+  .navbar-logout-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -216,6 +250,26 @@
 
   .navbar-logo-container {
     margin-right: 1rem;
+  }
+
+  .navbar-logout-btn {
+    width: 100%;
+    height: 50px;
+    justify-content: flex-start;
+    padding: 1rem 2rem;
+    border-radius: 0;
+    margin-left: 0;
+  }
+
+  .navbar-logout-btn svg {
+    margin-right: 0.75rem;
+  }
+
+  .navbar-logout-btn::after {
+    content: 'Cerrar sesión';
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
   }
 }
 

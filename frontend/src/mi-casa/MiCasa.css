@@ -1,0 +1,109 @@
+.house-info-card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+.house-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.house-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
+}
+
+.estado-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.estado-al-dia {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.estado-moroso {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.estado-arreglo {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.members-section {
+  margin-top: 2rem;
+}
+
+.members-section h3 {
+  color: #333;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.member-card {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #00CCFF;
+}
+
+.member-card h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.member-info {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.error-message {
+  color: #dc3545;
+  background: #f8d7da;
+  padding: 1rem;
+  border-radius: 4px;
+  border-left: 4px solid #dc3545;
+}
+
+@media (max-width: 768px) {
+  .house-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .house-info-card {
+    padding: 1rem;
+  }
+}

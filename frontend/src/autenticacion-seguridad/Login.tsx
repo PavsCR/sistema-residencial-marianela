@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
 import './Login.css';
 
@@ -7,6 +8,7 @@ interface LoginProps {
 }
 
 export default function Login({ onLoginSuccess }: LoginProps) {
+  const navigate = useNavigate();
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
@@ -29,6 +31,9 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
       // Notificar al componente padre
       onLoginSuccess(response.token, response.user);
+
+      // Redirigir al home
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
     } finally {
@@ -77,6 +82,23 @@ export default function Login({ onLoginSuccess }: LoginProps) {
         </form>
 
         <div className="login-footer">
+          <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+            ¿No tienes cuenta?{' '}
+            <button
+              onClick={() => navigate('/registro')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#007bff',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontSize: '1rem',
+              }}
+            >
+              Solicitar registro
+            </button>
+          </p>
+
           <p className="test-credentials">
             <strong>Credenciales de prueba:</strong><br />
             Email: superadmin@residencialmarianela.com<br />
