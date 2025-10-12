@@ -9,8 +9,8 @@ const Navbar = () => {
   const { logout } = useAuth()
 
   const navItems = [
-    { name: 'Mis Pagos', path: '/mis-pagos' },
     { name: 'Mi Casa', path: '/mi-casa' },
+    { name: 'Mis Pagos', path: '/mis-pagos' },
     { name: 'Presupuesto del<br>Residencial', path: '/presupuesto', displayName: 'Presupuesto del Residencial' },
     { name: 'Finanzas', path: '/finanzas' },
     { name: 'Gestión de<br>Vecinos', path: '/gestion-vecinos', displayName: 'Gestión de Vecinos' },

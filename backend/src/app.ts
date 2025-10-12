@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoutes from './routes/autenticacion-seguridad/auth.routes';
 import solicitudesRoutes from './routes/solicitudes/solicitudes.routes';
+import casasRoutes from './routes/casas';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/api/usuarios', authRoutes);
 app.use('/api/solicitudes', solicitudesRoutes);
+app.use('/api/casas', casasRoutes);
 
 // 404 handler
 app.use((req, res) => {
