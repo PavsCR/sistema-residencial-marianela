@@ -60,3 +60,53 @@
 .extra {
   background-color: #2196F3;
 }
+
+.user-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.user-icon {
+  font-size: 1.1em;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.loading-container p {
+  font-size: 1.1em;
+  color: #666;
+}
+
+.no-results {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.no-results p {
+  font-size: 1.1em;
+  color: #888;
+  font-style: italic;
+}
+
+/* Improve house card layout */
+.house-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 80px;
+}
+
+.house-card h3 {
+  margin: 0 0 auto 0;
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './HouseUsersModal.css';
+import EditUserModal from './EditUserModal.tsx';
 
 interface Usuario {
   idUsuario: number;
@@ -35,6 +36,8 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
   const [houseData, setHouseData] = useState<HouseData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<Usuario | null>(null);
 
   useEffect(() => {
     if (isOpen && houseId) {
@@ -90,6 +93,21 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
     });
   };
 
+  const handleEditUser = (usuario: Usuario) => {
+    setSelectedUser(usuario);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleEditSuccess = () => {
+    // Refresh house data after successful edit request
+    fetchHouseUsers();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -136,6 +154,16 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
                           <p><strong>Rol:</strong> {usuario.rol.nombreRol}</p>
                           <p><strong>Registrado:</strong> {formatDate(usuario.fechaRegistro)}</p>
                         </div>
+                        
+                        <div className="user-actions">
+                          <button
+                            className="btn-edit"
+                            onClick={() => handleEditUser(usuario)}
+                            title="Solicitar cambios en la información"
+                          >
+                            ✏️ Editar
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -145,6 +173,15 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
           )}
         </div>
       </div>
+
+      {editModalOpen && selectedUser && (
+        <EditUserModal
+          isOpen={editModalOpen}
+          usuario={selectedUser}
+          onClose={handleCloseEditModal}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 };
