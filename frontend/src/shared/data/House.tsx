@@ -28,7 +28,7 @@ export const House: FC<HouseProps> = ({ id, status, position, onClick }) => {
         position: 'absolute',
         top: position.top,
         left: position.left,
-        cursor: 'pointer'
+        cursor: onClick ? 'pointer' : 'default'
       }}
       onClick={() => onClick?.(id)}
     >

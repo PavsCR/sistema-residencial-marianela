@@ -35,6 +35,14 @@ export default function Login({ onLoginSuccess }: LoginProps) {
       // Redirigir al home
       navigate('/');
     } catch (err: any) {
+      // Si la cuenta está suspendida, redirigir a pantalla de reactivación
+      if (err.estadoCuenta === 'suspendido' && err.usuario) {
+        navigate('/cuenta-desactivada', {
+          state: { usuario: err.usuario }
+        });
+        return;
+      }
+
       setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);

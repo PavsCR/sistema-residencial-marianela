@@ -216,9 +216,26 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Verificar que la cuenta esté activa
     if (usuario.estadoCuenta !== 'activo') {
+      // Si la cuenta está suspendida, devolver información para solicitar reactivación
+      if (usuario.estadoCuenta === 'suspendido') {
+        res.status(403).json({
+          success: false,
+          message: 'Cuenta suspendida',
+          estadoCuenta: 'suspendido',
+          usuario: {
+            idUsuario: usuario.idUsuario,
+            nombreCompleto: usuario.nombreCompleto,
+            correoElectronico: usuario.correoElectronico,
+          },
+        });
+        return;
+      }
+
+      // Para otros estados (pendiente, rechazado)
       res.status(403).json({
         success: false,
         message: `Cuenta ${usuario.estadoCuenta}. Contacta al administrador.`,
+        estadoCuenta: usuario.estadoCuenta,
       });
       return;
     }

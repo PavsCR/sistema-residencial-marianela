@@ -7,6 +7,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoutes from './routes/autenticacion-seguridad/auth.routes';
 import solicitudesRoutes from './routes/solicitudes/solicitudes.routes';
+import edicionInfoRoutes from './routes/solicitudes/edicionInfo.routes';
+import desactivacionRoutes from './routes/solicitudes/desactivacion.routes';
+import reactivacionRoutes from './routes/solicitudes/reactivacion.routes';
 
 const app = express();
 
@@ -24,7 +27,10 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use('/api/usuarios', authRoutes);
-app.use('/api/solicitudes', solicitudesRoutes);
+app.use('/api/solicitudes/registro', solicitudesRoutes);
+app.use('/api/solicitudes/edicion-info', edicionInfoRoutes);
+app.use('/api/solicitudes/desactivacion', desactivacionRoutes);
+app.use('/api/solicitudes/reactivacion', reactivacionRoutes);
 
 // 404 handler
 app.use((req, res) => {

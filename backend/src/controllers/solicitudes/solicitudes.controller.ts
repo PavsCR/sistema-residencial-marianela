@@ -11,6 +11,7 @@ import { Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import prisma from '../../config/prisma';
 import { hashPassword } from '../../shared/utils/password.utils';
+// import { sendAccountApprovedEmail, sendAccountRejectedEmail } from '../../shared/services/email.service';
 
 /**
  * SL_01: LISTAR SOLICITUDES DE REGISTRO PENDIENTES
@@ -218,6 +219,16 @@ export const aprobarSolicitud = async (req: Request, res: Response): Promise<voi
     });
 
     // TODO: Enviar correo de confirmación al usuario
+    // Descomentar cuando se configure el servicio de correo
+    // try {
+    //   await sendAccountApprovedEmail(
+    //     resultado.nuevoUsuario.correoElectronico,
+    //     resultado.nuevoUsuario.nombreCompleto
+    //   );
+    //   console.log(`✅ Correo de confirmación enviado a ${resultado.nuevoUsuario.correoElectronico}`);
+    // } catch (emailError) {
+    //   console.error('⚠️ Error al enviar correo de confirmación:', emailError);
+    // }
 
     res.status(200).json({
       success: true,
@@ -312,10 +323,21 @@ export const rechazarSolicitud = async (req: Request, res: Response): Promise<vo
     });
 
     // TODO: Enviar correo de notificación al solicitante
+    // Descomentar cuando se configure el servicio de correo
+    // try {
+    //   await sendAccountRejectedEmail(
+    //     solicitud.correoElectronico,
+    //     solicitud.nombreCompleto,
+    //     motivo
+    //   );
+    //   console.log(`✅ Correo de rechazo enviado a ${solicitud.correoElectronico}`);
+    // } catch (emailError) {
+    //   console.error('⚠️ Error al enviar correo de rechazo:', emailError);
+    // }
 
     res.status(200).json({
       success: true,
-      message: 'Solicitud rechazada. Se ha notificado al solicitante.',
+      message: 'Solicitud rechazada.',
     });
   } catch (error) {
     console.error('Error en rechazarSolicitud:', error);

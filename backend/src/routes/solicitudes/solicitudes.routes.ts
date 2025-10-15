@@ -22,15 +22,15 @@ const router = Router();
  */
 
 // Listar todas las solicitudes de registro pendientes
-router.get('/registro', authenticateToken, listarSolicitudesRegistro);
+router.get('/', authenticateToken, listarSolicitudesRegistro);
 
 // Obtener detalle de una solicitud específica
-router.get('/registro/:id', authenticateToken, obtenerSolicitud);
+router.get('/:id', authenticateToken, obtenerSolicitud);
 
 // Aprobar una solicitud de registro
-router.put('/registro/:id/aprobar', authenticateToken, validacionAprobarSolicitud, aprobarSolicitud);
+router.put('/:id/aprobar', authenticateToken, validacionAprobarSolicitud, aprobarSolicitud);
 
 // Rechazar una solicitud de registro
-router.put('/registro/:id/rechazar', authenticateToken, validacionRechazarSolicitud, rechazarSolicitud);
+router.put('/:id/rechazar', authenticateToken, validacionRechazarSolicitud, rechazarSolicitud);
 
 export default router;

@@ -6,17 +6,22 @@ import './Navbar.css'
 const Navbar = () => {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
 
-  const navItems = [
-    { name: 'Mis Pagos', path: '/mis-pagos' },
-    { name: 'Mi Casa', path: '/mi-casa' },
-    { name: 'Presupuesto del<br>Residencial', path: '/presupuesto', displayName: 'Presupuesto del Residencial' },
-    { name: 'Finanzas', path: '/finanzas' },
-    { name: 'Gestión de<br>Vecinos', path: '/gestion-vecinos', displayName: 'Gestión de Vecinos' },
-    { name: 'Solicitudes', path: '/solicitudes' },
-    { name: 'Informes', path: '/informes' }
+  const allNavItems = [
+    { name: 'Mis Pagos', path: '/mis-pagos', roles: ['vecino', 'administrador', 'super_admin'] },
+    { name: 'Mi Casa', path: '/mi-casa', roles: ['vecino', 'administrador', 'super_admin'] },
+    { name: 'Presupuesto del<br>Residencial', path: '/presupuesto', displayName: 'Presupuesto del Residencial', roles: ['vecino', 'administrador', 'super_admin'] },
+    { name: 'Finanzas', path: '/finanzas', roles: ['administrador', 'super_admin'] },
+    { name: 'Gestión de<br>Vecinos', path: '/gestion-vecinos', displayName: 'Gestión de Vecinos', roles: ['administrador', 'super_admin'] },
+    { name: 'Solicitudes', path: '/solicitudes', roles: ['administrador', 'super_admin'] },
+    { name: 'Informes', path: '/informes', roles: ['administrador', 'super_admin'] }
   ]
+
+  // Filtrar items del navbar según el rol del usuario
+  const navItems = allNavItems.filter(item =>
+    item.roles.includes(user?.rol || '')
+  )
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)

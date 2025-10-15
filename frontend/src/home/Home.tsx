@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 import mapaImage from './assets-mapa/mapa-vacio-temp.png';
 import { House } from '../shared/data/House';
@@ -8,12 +9,17 @@ import { houses as initialHouses, type HouseData } from '../shared/data/houses';
 const Home = () => {
   const [houses] = useState<HouseData[]>(initialHouses);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Solo administradores y super_admin pueden hacer click en las casas
+  const isAdmin = user?.rol === 'administrador' || user?.rol === 'super_admin';
 
   const handleHouseClick = (id: string) => {
+    if (!isAdmin) return; // Bloquear click si no es admin
     navigate('/finanzas');
     //navigate('/finanzas/pagos');
-    /*Implementación a futuro: Al ingresar al modulo "\Finanzas > Pagos\" 
-    mediante esta redireccion realiza el filtro segun la casa*/ 
+    /*Implementación a futuro: Al ingresar al modulo "\Finanzas > Pagos\"
+    mediante esta redireccion realiza el filtro segun la casa*/
   };
 
   return (
@@ -30,7 +36,7 @@ const Home = () => {
             <House
               key={house.id}
               {...house}
-              onClick={handleHouseClick}
+              onClick={isAdmin ? handleHouseClick : undefined}
             />
           ))}
         </div>

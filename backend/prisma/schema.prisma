@@ -99,6 +99,61 @@ model SolicitudRegistro {
   @@map("solicitudes_registro")
 }
 
+/// Solicitudes de edición de información personal (nombre, correo, teléfono)
+model SolicitudEdicionInfo {
+  idSolicitud           Int       @id @default(autoincrement()) @map("id_solicitud")
+  idUsuario             Int       @map("id_usuario") // Usuario que solicita edición
+  nombreCompletoActual  String    @map("nombre_completo_actual") @db.VarChar(255)
+  nombreCompletoNuevo   String?   @map("nombre_completo_nuevo") @db.VarChar(255)
+  correoActual          String    @map("correo_actual") @db.VarChar(255)
+  correoNuevo           String?   @map("correo_nuevo") @db.VarChar(255)
+  telefonoActual        String?   @map("telefono_actual") @db.VarChar(20)
+  telefonoNuevo         String?   @map("telefono_nuevo") @db.VarChar(20)
+  estado                String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  fechaSolicitud        DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRevision         DateTime? @map("fecha_revision")
+  idRevisor             Int?      @map("id_revisor")
+  comentarios           String?   @db.Text
+  creadoEn              DateTime  @default(now()) @map("creado_en")
+  actualizadoEn         DateTime  @updatedAt @map("actualizado_en")
+
+  @@map("solicitudes_edicion_info")
+}
+
+/// Solicitudes de desactivación de cuenta (MI_03)
+model SolicitudDesactivacion {
+  idSolicitud         Int       @id @default(autoincrement()) @map("id_solicitud")
+  idUsuarioSolicitante Int      @map("id_usuario_solicitante") // Usuario que hace la solicitud
+  idUsuarioDesactivar Int       @map("id_usuario_desactivar") // Usuario que se desea desactivar
+  motivo              String    @map("motivo") @db.Text
+  estado              String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  fechaSolicitud      DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRevision       DateTime? @map("fecha_revision")
+  idRevisor           Int?      @map("id_revisor")
+  comentarios         String?   @db.Text
+  creadoEn            DateTime  @default(now()) @map("creado_en")
+  actualizadoEn       DateTime  @updatedAt @map("actualizado_en")
+
+  @@map("solicitudes_desactivacion")
+}
+
+/// Solicitudes de reactivación de cuenta
+model SolicitudReactivacion {
+  idSolicitud       Int       @id @default(autoincrement()) @map("id_solicitud")
+  idUsuario         Int       @map("id_usuario") // Usuario suspendido que solicita reactivación
+  motivo            String    @map("motivo") @db.Text
+  numeroCasaNuevo   String    @map("numero_casa_nuevo") @db.VarChar(10) // Casa donde desea ser reactivado
+  estado            String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  fechaSolicitud    DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRevision     DateTime? @map("fecha_revision")
+  idRevisor         Int?      @map("id_revisor")
+  comentarios       String?   @db.Text
+  creadoEn          DateTime  @default(now()) @map("creado_en")
+  actualizadoEn     DateTime  @updatedAt @map("actualizado_en")
+
+  @@map("solicitudes_reactivacion")
+}
+
 /// Historial completo de operaciones para auditoría (Requerimiento AS_06)
 model HistorialOperacion {
   idOperacion      Int       @id @default(autoincrement()) @map("id_operacion")
