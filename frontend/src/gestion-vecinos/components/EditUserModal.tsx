@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authFetch } from '../../services/api';
 import './EditUserModal.css';
 
 interface Usuario {
@@ -77,18 +78,16 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ isOpen, usuario, onClose,
         datosNuevos.telefono = formData.telefono || null;
       }
 
-      const response = await fetch('http://localhost:3001/api/cambios', {
+      const response = await authFetch('/solicitudes/edicion-info', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
-          // TODO: Re-enable Authorization header after implementing login system
-          /*'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`*/ 
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          idUsuario: usuario.idUsuario,
-          datosNuevos,
-          motivo
+          nombreCompleto: formData.nombreCompleto,
+          correoElectronico: formData.correoElectronico,
+          telefono: formData.telefono || null,
+          idUsuarioEditar: usuario.idUsuario
         })
       });
 

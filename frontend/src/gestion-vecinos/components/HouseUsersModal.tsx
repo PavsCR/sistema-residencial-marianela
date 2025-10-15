@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { authFetch } from '../../services/api';
 import './HouseUsersModal.css';
 import EditUserModal from './EditUserModal.tsx';
 
@@ -33,11 +35,13 @@ interface HouseUsersModalProps {
 }
 
 const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onClose }) => {
+  const { user } = useAuth();
   const [houseData, setHouseData] = useState<HouseData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Usuario | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   useEffect(() => {
     if (isOpen && houseId) {
@@ -45,15 +49,40 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
     }
   }, [isOpen, houseId]);
 
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (openMenuId && !target.closest('.member-menu-container')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    if (openMenuId) {
+      document.addEventListener('click', handleClickOutside);
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [openMenuId]);
+
   const fetchHouseUsers = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`http://localhost:3001/api/casas/${houseId}/usuarios`);
+      const response = await authFetch(`/casas/${houseId}/usuarios`);
       const data = await response.json();
-      
+
       if (data.success) {
+        // Ordenar usuarios: usuario actual primero
+        if (user && data.data.usuarios) {
+          data.data.usuarios.sort((a: Usuario, b: Usuario) => {
+            if (a.idUsuario === user.id) return -1;
+            if (b.idUsuario === user.id) return 1;
+            return 0;
+          });
+        }
         setHouseData(data.data);
       } else {
         setError(data.message || 'Error al cargar los datos');
@@ -108,6 +137,10 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
     fetchHouseUsers();
   };
 
+  const toggleMenu = (idUsuario: number) => {
+    setOpenMenuId(openMenuId === idUsuario ? null : idUsuario);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -139,33 +172,65 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
                   <p className="no-users">No hay vecinos registrados para esta casa.</p>
                 ) : (
                   <div className="users-grid">
-                    {houseData.usuarios.map(usuario => (
-                      <div key={usuario.idUsuario} className="user-card">
-                        <div className="user-header">
-                          <h4>{usuario.nombreCompleto}</h4>
-                          <span className={`account-status ${usuario.estadoCuenta}`}>
-                            {getAccountStatusText(usuario.estadoCuenta)}
-                          </span>
+                    {houseData.usuarios.map(usuario => {
+                      const isCurrentUser = usuario.idUsuario === user?.id;
+                      return (
+                        <div
+                          key={usuario.idUsuario}
+                          className={`member-card ${isCurrentUser ? 'current-user' : ''}`}
+                        >
+                          <div className="member-header">
+                            <h4>
+                              {usuario.nombreCompleto}
+                              {isCurrentUser && <span className="current-user-badge"> (Tú)</span>}
+                            </h4>
+                            <div className="member-menu-container">
+                              <button
+                                className="btn-member-menu"
+                                onClick={() => toggleMenu(usuario.idUsuario)}
+                                title="Opciones"
+                              >
+                                ⚙️
+                              </button>
+                              {openMenuId === usuario.idUsuario && (
+                                <div className="member-menu-dropdown">
+                                  <button
+                                    className="menu-option"
+                                    onClick={() => {
+                                      handleEditUser(usuario);
+                                      setOpenMenuId(null);
+                                    }}
+                                  >
+                                    Editar información
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="member-details">
+                            <p className="member-info">
+                              <span className="info-label">Email:</span> {usuario.correoElectronico}
+                            </p>
+                            <p className="member-info">
+                              <span className="info-label">Teléfono:</span> {usuario.telefono || 'No especificado'}
+                            </p>
+                            <p className="member-info">
+                              <span className="info-label">Rol:</span> {usuario.rol.nombreRol}
+                            </p>
+                            <p className="member-info">
+                              <span className="info-label">Estado:</span>{' '}
+                              <span className={`account-status ${usuario.estadoCuenta}`}>
+                                {getAccountStatusText(usuario.estadoCuenta)}
+                              </span>
+                            </p>
+                            <p className="member-info">
+                              <span className="info-label">Registrado:</span> {formatDate(usuario.fechaRegistro)}
+                            </p>
+                          </div>
                         </div>
-                        
-                        <div className="user-details">
-                          <p><strong>Email:</strong> {usuario.correoElectronico}</p>
-                          {usuario.telefono && <p><strong>Teléfono:</strong> {usuario.telefono}</p>}
-                          <p><strong>Rol:</strong> {usuario.rol.nombreRol}</p>
-                          <p><strong>Registrado:</strong> {formatDate(usuario.fechaRegistro)}</p>
-                        </div>
-                        
-                        <div className="user-actions">
-                          <button
-                            className="btn-edit"
-                            onClick={() => handleEditUser(usuario)}
-                            title="Solicitar cambios en la información"
-                          >
-                            ✏️ Editar
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

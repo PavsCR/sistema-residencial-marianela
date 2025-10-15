@@ -150,7 +150,124 @@
   gap: 16px;
 }
 
-/* User Card */
+/* Member Card (matching Mi Casa style) */
+.member-card {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #00CCFF;
+  position: relative;
+  transition: box-shadow 0.2s;
+}
+
+.member-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.member-card.current-user {
+  background: #f0fdf4;
+  border-left-color: #22c55e;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
+}
+
+.member-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.member-card h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+  flex: 1;
+}
+
+.current-user-badge {
+  color: #22c55e;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.member-menu-container {
+  position: relative;
+  margin-left: 0.5rem;
+}
+
+.btn-member-menu {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.btn-member-menu:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.member-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  min-width: 200px;
+  margin-top: 0.25rem;
+}
+
+.menu-option {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  color: #333;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
+}
+
+.menu-option:hover {
+  background-color: #f8f9fa;
+}
+
+.menu-option:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.menu-option:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.member-details {
+  margin-top: 0.5rem;
+}
+
+.member-info {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Legacy user-card styles (for backwards compatibility) */
 .user-card {
   border: 1px solid #dee2e6;
   border-radius: 8px;
