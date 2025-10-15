@@ -1,18 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './Home.css';
 import mapaImage from './assets-mapa/mapa-vacio-temp.png';
 import { House } from '../shared/data/House';
-import { houses as initialHouses, type HouseData } from '../shared/data/houses';
+import { fetchHousesFromAPI, type HouseData } from '../shared/data/houses';
 
 const Home = () => {
-  const [houses] = useState<HouseData[]>(initialHouses);
+  const [houses, setHouses] = useState<HouseData[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
 
   // Solo administradores y super_admin pueden hacer click en las casas
   const isAdmin = user?.rol === 'administrador' || user?.rol === 'super_admin';
+
+  useEffect(() => {
+    const loadHouses = async () => {
+      try {
+        const housesFromAPI = await fetchHousesFromAPI();
+        setHouses(housesFromAPI);
+      } catch (error) {
+        console.error('Error loading houses:', error);
+        // Keep static houses as fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHouses();
+  }, []);
 
   const handleHouseClick = (id: string) => {
     if (!isAdmin) return; // Bloquear click si no es admin

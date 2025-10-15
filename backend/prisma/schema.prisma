@@ -73,6 +73,8 @@ model Usuario {
   casa                   Casa?     @relation(fields: [idCasa], references: [idCasa])
   historialOperaciones   HistorialOperacion[]
   sesionesActivas        SesionActiva[]
+  solicitudesCambio      SolicitudCambio[]
+  solicitudesCambioRevisadas SolicitudCambio[] @relation("ReviewedChanges")
 
   @@index([correoElectronico])
   @@index([estadoCuenta])
@@ -171,6 +173,28 @@ model HistorialOperacion {
   @@index([idUsuario])
   @@index([fechaOperacion])
   @@map("historial_operaciones")
+}
+
+/// Solicitudes de cambio de información de usuario
+model SolicitudCambio {
+  idSolicitud      Int       @id @default(autoincrement()) @map("id_solicitud")
+  idUsuario        Int       @map("id_usuario")
+  datosOriginales  Json      @map("datos_originales") @db.JsonB
+  datosNuevos      Json      @map("datos_nuevos") @db.JsonB
+  motivo           String    @db.Text
+  estado           String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  fechaSolicitud   DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRevision    DateTime? @map("fecha_revision")
+  idRevisor        Int?      @map("id_revisor")
+  comentarios      String?   @db.Text
+  creadoEn         DateTime  @default(now()) @map("creado_en")
+  actualizadoEn    DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  usuario          Usuario   @relation(fields: [idUsuario], references: [idUsuario])
+  revisor          Usuario?  @relation("ReviewedChanges", fields: [idRevisor], references: [idUsuario])
+
+  @@map("solicitudes_cambio")
 }
 
 /// Sesiones JWT activas para rastreo y revocación
