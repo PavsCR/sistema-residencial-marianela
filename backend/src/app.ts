@@ -12,7 +12,6 @@ import desactivacionRoutes from './routes/solicitudes/desactivacion.routes';
 import reactivacionRoutes from './routes/solicitudes/reactivacion.routes';
 import casasRoutes from './routes/casas';
 import cambiosRoutes from './routes/cambios';
-import pagosRoutes from './routes/pagos';
 
 const app = express();
 
@@ -36,7 +35,6 @@ app.use('/api/solicitudes/desactivacion', desactivacionRoutes);
 app.use('/api/solicitudes/reactivacion', reactivacionRoutes);
 app.use('/api/casas', casasRoutes);
 app.use('/api/cambios', cambiosRoutes);
-app.use('/api/pagos', pagosRoutes);
 
 // 404 handler
 app.use((req, res) => {

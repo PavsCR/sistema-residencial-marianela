@@ -12,12 +12,12 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Iniciando seed de la base de datos...\n');
+  console.log('🌱 Iniciando seed de la base de datos...\n');
 
   // ============================================
   // 1. CREAR ROLES PREDETERMINADOS
   // ============================================
-  console.log('Creando roles...');
+  console.log('📋 Creando roles...');
 
   const rolSuperAdmin = await prisma.rol.upsert({
     where: { nombreRol: 'super_admin' },
@@ -46,7 +46,7 @@ async function main() {
     },
   });
 
-  console.log('Roles creados:');
+  console.log('✅ Roles creados:');
   console.log(`   - ${rolSuperAdmin.nombreRol} (ID: ${rolSuperAdmin.idRol})`);
   console.log(`   - ${rolAdministrador.nombreRol} (ID: ${rolAdministrador.idRol})`);
   console.log(`   - ${rolVecino.nombreRol} (ID: ${rolVecino.idRol})\n`);
@@ -54,7 +54,7 @@ async function main() {
   // ============================================
   // 2. CREAR CASAS DEL RESIDENCIAL (0-120)
   // ============================================
-  console.log('Creando casas del residencial...');
+  console.log('🏠 Creando casas del residencial...');
 
   const casasExistentes = await prisma.casa.count();
 
@@ -79,7 +79,7 @@ async function main() {
       skipDuplicates: true,
     });
 
-    console.log('121 casas creadas (0-120)\n');
+    console.log('✅ 121 casas creadas (0-120)\n');
   } else {
     // Verificar si existe casa 0
     const casa0 = await prisma.casa.findFirst({
@@ -93,16 +93,16 @@ async function main() {
           estadoPago: 'al_dia',
         },
       });
-      console.log('Casa 0 creada para casos especiales\n');
+      console.log('✅ Casa 0 creada para casos especiales\n');
     } else {
-      console.log(`Ya existen ${casasExistentes} casas en la base de datos\n`);
+      console.log(`✅ Ya existen ${casasExistentes} casas en la base de datos\n`);
     }
   }
 
   // ============================================
   // 3. CREAR USUARIO SUPER ADMIN (OBLIGATORIO)
   // ============================================
-  console.log('Verificando usuario Super Admin...');
+  console.log('👑 Verificando usuario Super Admin...');
 
   // Obtener la casa 100
   const casa100 = await prisma.casa.findFirst({
@@ -128,18 +128,18 @@ async function main() {
     },
   });
 
-  console.log('Usuario Super Admin verificado:');
+  console.log('✅ Usuario Super Admin verificado:');
   console.log(`   - Email: ${superAdminUsuario.correoElectronico}`);
   console.log(`   - Casa: ${casa100?.numeroCasa || 'No asignada'}`);
   console.log(`   - Contraseña: SuperAdmin2025!`);
   console.log(`   - ⚠️  CAMBIAR CONTRASEÑA EN PRODUCCIÓN!\n`);
 
-  console.log('Seed completado exitosamente');
+  console.log('✅ Seed completado exitosamente');
 }
 
 main()
   .catch((e) => {
-    console.error('Error en seed:', e);
+    console.error('❌ Error en seed:', e);
     process.exit(1);
   })
   .finally(async () => {
