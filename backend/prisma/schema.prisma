@@ -30,6 +30,7 @@ model Casa {
 
   // Relaciones
   usuarios      Usuario[]
+  pagos         Pago[]
 
   @@map("casas")
 }
@@ -214,4 +215,24 @@ model SesionActiva {
   @@index([idUsuario])
   @@index([activo])
   @@map("sesiones_activas")
+}
+
+/// Pagos realizados por las casas
+model Pago {
+  idPago        Int       @id @default(autoincrement()) @map("id_pago")
+  idCasa        Int       @map("id_casa")
+  monto         Decimal   @map("monto") @db.Decimal(10, 2)
+  descripcion   String    @map("descripcion") @db.VarChar(255)
+  fechaPago     DateTime  @default(now()) @map("fecha_pago")
+  metodoPago    String?   @map("metodo_pago") @db.VarChar(50) // efectivo, transferencia, tarjeta
+  comprobante   String?   @map("comprobante") @db.VarChar(255) // referencia o número de comprobante
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  casa          Casa      @relation(fields: [idCasa], references: [idCasa])
+
+  @@index([idCasa])
+  @@index([fechaPago])
+  @@map("pagos")
 }
