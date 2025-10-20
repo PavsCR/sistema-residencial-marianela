@@ -9,8 +9,8 @@ const Navbar = () => {
   const { logout, user } = useAuth()
 
   const allNavItems = [
-    { name: 'Mis Pagos', path: '/mis-pagos', roles: ['vecino', 'administrador', 'super_admin'] },
     { name: 'Mi Casa', path: '/mi-casa', roles: ['vecino', 'administrador', 'super_admin'] },
+    { name: 'Mis Pagos', path: '/mis-pagos', roles: ['vecino', 'administrador', 'super_admin'] },
     { name: 'Presupuesto del<br>Residencial', path: '/presupuesto', displayName: 'Presupuesto del Residencial', roles: ['vecino', 'administrador', 'super_admin'] },
     { name: 'Finanzas', path: '/finanzas', roles: ['administrador', 'super_admin'] },
     { name: 'Gestión de<br>Vecinos', path: '/gestion-vecinos', displayName: 'Gestión de Vecinos', roles: ['administrador', 'super_admin'] },
