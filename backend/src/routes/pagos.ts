@@ -79,7 +79,8 @@ router.get('/mi-casa', async (req, res) => {
         idPago: true,
         monto: true,
         descripcion: true,
-        fechaPago: true
+        fechaPago: true,
+        estado: true
       },
       orderBy: {
         fechaPago: 'desc'
@@ -91,10 +92,11 @@ router.get('/mi-casa', async (req, res) => {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-    // Obtener pagos del mes actual
+    // Obtener pagos del mes actual (solo los aprobados)
     const pagosDelMes = await prisma.pago.findMany({
       where: {
         idCasa: usuario.idCasa,
+        estado: 'aprobado',
         fechaPago: {
           gte: startOfMonth,
           lte: endOfMonth
@@ -102,7 +104,7 @@ router.get('/mi-casa', async (req, res) => {
       }
     });
 
-    // Calcular total pagado en el mes
+    // Calcular total pagado en el mes (solo pagos aprobados)
     const totalPagadoMes = pagosDelMes.reduce((sum: number, pago: any) => {
       return sum + parseFloat(pago.monto.toString());
     }, 0);
@@ -163,7 +165,8 @@ router.get('/casa/:numeroCasa', authenticateToken, async (req, res) => {
         idPago: true,
         monto: true,
         descripcion: true,
-        fechaPago: true
+        fechaPago: true,
+        estado: true
       },
       orderBy: {
         fechaPago: 'desc'
@@ -217,7 +220,7 @@ router.post('/confirmar', authenticateToken, upload.single('comprobante'), async
       });
     }
 
-    // Create payment record
+    // Create payment record with estado pendiente (awaiting admin approval)
     const pago = await prisma.pago.create({
       data: {
         idCasa: usuario.idCasa,
@@ -225,7 +228,8 @@ router.post('/confirmar', authenticateToken, upload.single('comprobante'), async
         descripcion: `${descripcion} - Mes: ${mesPago}`,
         fechaPago: new Date(fechaPago),
         metodoPago: metodoPago,
-        comprobante: file.filename // Store just the filename
+        comprobante: file.filename, // Store just the filename
+        estado: 'pendiente' // Pending admin approval
       }
     });
 
@@ -251,6 +255,108 @@ router.post('/confirmar', authenticateToken, upload.single('comprobante'), async
       }
     }
 
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET /api/pagos/todos - Obtener todos los pagos de todas las casas (para administradores)
+router.get('/todos', authenticateToken, async (req, res) => {
+  try {
+    // Get all payments with casa information
+    const pagos = await prisma.pago.findMany({
+      include: {
+        casa: {
+          select: {
+            numeroCasa: true
+          }
+        }
+      },
+      orderBy: {
+        fechaPago: 'desc'
+      }
+    });
+
+    res.json({
+      success: true,
+      data: pagos
+    });
+  } catch (error: any) {
+    console.error('Error al obtener todos los pagos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// PUT /api/pagos/:id/estado - Actualizar estado de un pago (para administradores)
+router.put('/:id/estado', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    // Validate estado
+    if (!['pendiente', 'aprobado', 'rechazado'].includes(estado)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Estado inválido. Debe ser: pendiente, aprobado o rechazado'
+      });
+    }
+
+    const pago = await prisma.pago.update({
+      where: { idPago: parseInt(id) },
+      data: { estado }
+    });
+
+    res.json({
+      success: true,
+      message: `Pago ${estado} exitosamente`,
+      data: pago
+    });
+  } catch (error: any) {
+    console.error('Error al actualizar estado del pago:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// GET /api/pagos/:id/comprobante - Obtener imagen del comprobante
+router.get('/:id/comprobante', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const pago = await prisma.pago.findUnique({
+      where: { idPago: parseInt(id) },
+      select: { comprobante: true }
+    });
+
+    if (!pago || !pago.comprobante) {
+      return res.status(404).json({
+        success: false,
+        message: 'Comprobante no encontrado'
+      });
+    }
+
+    const filePath = path.join(__dirname, '../../uploads/comprobantes', pago.comprobante);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({
+        success: false,
+        message: 'Archivo de comprobante no encontrado'
+      });
+    }
+
+    res.sendFile(filePath);
+  } catch (error: any) {
+    console.error('Error al obtener comprobante:', error);
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',

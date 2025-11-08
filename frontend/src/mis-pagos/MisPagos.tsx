@@ -7,6 +7,7 @@ interface Pago {
   monto: string;
   descripcion: string;
   fechaPago: string;
+  estado: string;
 }
 
 interface CasaInfo {
@@ -88,6 +89,15 @@ const MisPagos = () => {
       'al_dia': 'Al Día',
       'moroso': 'Moroso',
       'en_arreglo': 'En Arreglo de Pago'
+    };
+    return labels[estado] || estado;
+  };
+
+  const getEstadoPagoIndividualLabel = (estado: string) => {
+    const labels: Record<string, string> = {
+      'pendiente': 'Pendiente',
+      'aprobado': 'Aprobado',
+      'rechazado': 'Rechazado'
     };
     return labels[estado] || estado;
   };
@@ -313,14 +323,17 @@ const MisPagos = () => {
                 <div className="payment-amount">
                   {formatCurrency(pago.monto)}
                 </div>
-                <div className="payment-date">
-                  {formatDate(pago.fechaPago)}
-                </div>
+                <span className={`payment-estado-badge estado-${pago.estado}`}>
+                  {getEstadoPagoIndividualLabel(pago.estado)}
+                </span>
               </div>
 
               <div className="payment-body">
                 <div className="payment-description">
                   {pago.descripcion}
+                </div>
+                <div className="payment-date">
+                  {formatDate(pago.fechaPago)}
                 </div>
               </div>
             </div>

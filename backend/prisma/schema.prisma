@@ -226,6 +226,7 @@ model Pago {
   fechaPago     DateTime  @default(now()) @map("fecha_pago")
   metodoPago    String?   @map("metodo_pago") @db.VarChar(50) // efectivo, transferencia, tarjeta
   comprobante   String?   @map("comprobante") @db.VarChar(255) // referencia o número de comprobante
+  estado        String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobado, rechazado
   creadoEn      DateTime  @default(now()) @map("creado_en")
   actualizadoEn DateTime  @updatedAt @map("actualizado_en")
 
@@ -234,5 +235,6 @@ model Pago {
 
   @@index([idCasa])
   @@index([fechaPago])
+  @@index([estado])
   @@map("pagos")
 }
