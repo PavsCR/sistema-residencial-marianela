@@ -7,6 +7,7 @@ import Navbar from './shared/components/Navbar'
 import ProtectedRoute from './shared/components/ProtectedRoute'
 import Home from './home/Home'
 import MisPagos from './mis-pagos/MisPagos'
+import ConfirmarPago from './mis-pagos/ConfirmarPago'
 import MiCasa from './mi-casa/MiCasa'
 import Presupuesto from './presupuesto/Presupuesto'
 import Finanzas from './finanzas/Finanzas'
@@ -38,6 +39,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mis-pagos" element={<MisPagos />} />
+          <Route path="/confirmar-pago" element={<ConfirmarPago />} />
           <Route path="/mi-casa" element={<MiCasa />} />
           <Route path="/presupuesto" element={<Presupuesto />} />
           <Route

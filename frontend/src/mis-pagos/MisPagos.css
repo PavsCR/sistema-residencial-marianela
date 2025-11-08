@@ -6,7 +6,7 @@
 
 .page-container h1 {
   color: #2c3e50;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .casa-info {
@@ -16,6 +16,13 @@
   border-radius: 10px;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.casa-info-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
 }
 
 .casa-info h2 {
@@ -42,6 +49,25 @@
 
 .estado-badge.en_arreglo {
   background: #FFC107;
+}
+
+.btn-confirmar-pago {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.btn-confirmar-pago:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
 }
 
 /* Monthly Payment Info */
@@ -224,8 +250,8 @@
 }
 
 .payments-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
@@ -330,6 +356,19 @@
 }
 
 @media (max-width: 768px) {
+  .casa-info-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-confirmar-pago {
+    width: 100%;
+  }
+
+  .payments-list {
+    grid-template-columns: 1fr;
+  }
+
   .payment-header {
     flex-direction: column;
     gap: 0.5rem;

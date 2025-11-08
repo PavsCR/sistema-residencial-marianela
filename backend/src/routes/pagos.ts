@@ -1,8 +1,44 @@
 import { Router } from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import prisma from '../config/prisma';
 import { authenticateToken } from '../shared/middleware/auth.middleware';
 
 const router = Router();
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../../uploads/comprobantes');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'comprobante-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Tipo de archivo no permitido. Solo JPG, PNG, WEBP o PDF'));
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max
+  },
+  fileFilter: fileFilter
+});
 
 // GET /api/pagos/mi-casa - Obtener historial de pagos de la casa del usuario autenticado
 // TODO: Re-enable authenticateToken after implementing login system
@@ -146,6 +182,75 @@ router.get('/casa/:numeroCasa', authenticateToken, async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error al obtener pagos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// POST /api/pagos/confirmar - Confirmar pago con comprobante (para vecinos)
+router.post('/confirmar', authenticateToken, upload.single('comprobante'), async (req, res) => {
+  try {
+    const { fechaPago, mesPago, monto, descripcion, metodoPago } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere un comprobante de pago'
+      });
+    }
+
+    // Get user's casa
+    const idUsuario = (req as any).user?.idUsuario || 1;
+    const usuario = await prisma.usuario.findUnique({
+      where: { idUsuario },
+      select: { idCasa: true }
+    });
+
+    if (!usuario || !usuario.idCasa) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no tiene una casa asignada'
+      });
+    }
+
+    // Create payment record
+    const pago = await prisma.pago.create({
+      data: {
+        idCasa: usuario.idCasa,
+        monto: parseFloat(monto),
+        descripcion: `${descripcion} - Mes: ${mesPago}`,
+        fechaPago: new Date(fechaPago),
+        metodoPago: metodoPago,
+        comprobante: file.filename // Store just the filename
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Pago confirmado exitosamente',
+      data: {
+        idPago: pago.idPago,
+        monto: pago.monto,
+        descripcion: pago.descripcion,
+        fechaPago: pago.fechaPago
+      }
+    });
+  } catch (error: any) {
+    console.error('Error al confirmar pago:', error);
+    
+    // Delete uploaded file if there was an error
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error al eliminar archivo:', unlinkError);
+      }
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',

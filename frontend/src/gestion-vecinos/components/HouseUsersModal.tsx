@@ -42,6 +42,10 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<Usuario | null>(null);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [showInactivateModal, setShowInactivateModal] = useState(false);
+  const [inactivateUser, setInactivateUser] = useState<Usuario | null>(null);
+  const [inactivateMotivo, setInactivateMotivo] = useState('');
+  const [inactivateLoading, setInactivateLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && houseId) {
@@ -141,6 +145,49 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
     setOpenMenuId(openMenuId === idUsuario ? null : idUsuario);
   };
 
+  const handleInactivateClick = (usuario: Usuario) => {
+    setInactivateUser(usuario);
+    setInactivateMotivo('');
+    setShowInactivateModal(true);
+    setOpenMenuId(null);
+  };
+
+  const handleInactivateSubmit = async () => {
+    if (!inactivateUser || !inactivateMotivo) return;
+
+    if (inactivateMotivo.length < 10 || inactivateMotivo.length > 500) {
+      alert('El motivo debe tener entre 10 y 500 caracteres');
+      return;
+    }
+
+    try {
+      setInactivateLoading(true);
+      const response = await authFetch('/solicitudes/desactivacion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idUsuarioDesactivar: inactivateUser.idUsuario,
+          motivo: inactivateMotivo
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al crear solicitud');
+      }
+
+      alert('Solicitud de inactivación creada exitosamente. Debe ser aprobada por otro administrador.');
+      setShowInactivateModal(false);
+      setInactivateUser(null);
+      setInactivateMotivo('');
+    } catch (err: any) {
+      alert(err.message || 'Error al crear solicitud de inactivación');
+    } finally {
+      setInactivateLoading(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -203,6 +250,14 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
                                   >
                                     Editar información
                                   </button>
+                                  {usuario.estadoCuenta === 'activo' && !isCurrentUser && (
+                                    <button
+                                      className="menu-option danger"
+                                      onClick={() => handleInactivateClick(usuario)}
+                                    >
+                                      Solicitar inactivación
+                                    </button>
+                                  )}
                                 </div>
                               )}
                             </div>
@@ -246,6 +301,64 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
           onClose={handleCloseEditModal}
           onSuccess={handleEditSuccess}
         />
+      )}
+
+      {showInactivateModal && inactivateUser && (
+        <div className="modal-overlay" onClick={() => setShowInactivateModal(false)}>
+          <div className="modal-content inactivate-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Solicitar Inactivación de Cuenta</h2>
+              <button className="close-button" onClick={() => setShowInactivateModal(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <div className="warning-box">
+                <p>⚠️ Esta acción creará una solicitud de inactivación que debe ser aprobada por otro administrador.</p>
+              </div>
+              
+              <div className="user-info-box">
+                <h3>Usuario a inactivar:</h3>
+                <p><strong>Nombre:</strong> {inactivateUser.nombreCompleto}</p>
+                <p><strong>Email:</strong> {inactivateUser.correoElectronico}</p>
+                <p><strong>Casa:</strong> {houseId}</p>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="inactivate-motivo">
+                  Justificación de la inactivación <span className="required">*</span>
+                </label>
+                <textarea
+                  id="inactivate-motivo"
+                  value={inactivateMotivo}
+                  onChange={(e) => setInactivateMotivo(e.target.value)}
+                  placeholder="Explica el motivo de la inactivación (10-500 caracteres)"
+                  rows={4}
+                  disabled={inactivateLoading}
+                  required
+                />
+                <small>
+                  {inactivateMotivo.length}/500 caracteres (mínimo 10)
+                </small>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  className="btn-cancel"
+                  onClick={() => setShowInactivateModal(false)}
+                  disabled={inactivateLoading}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn-submit danger"
+                  onClick={handleInactivateSubmit}
+                  disabled={inactivateLoading || inactivateMotivo.length < 10}
+                >
+                  {inactivateLoading ? 'Enviando...' : 'Crear Solicitud'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

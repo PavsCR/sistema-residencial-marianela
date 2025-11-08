@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './MisPagos.css';
 
 interface Pago {
@@ -25,6 +26,7 @@ interface PagosData {
 }
 
 const MisPagos = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<PagosData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -174,10 +176,20 @@ const MisPagos = () => {
       <h1>Mis Pagos</h1>
 
       <div className="casa-info">
-        <h2>Casa {data.casa.numeroCasa}</h2>
-        <span className={`estado-badge ${data.casa.estadoPago}`}>
-          {getEstadoPagoLabel(data.casa.estadoPago)}
-        </span>
+        <div className="casa-info-content">
+          <div>
+            <h2>Casa {data.casa.numeroCasa}</h2>
+            <span className={`estado-badge ${data.casa.estadoPago}`}>
+              {getEstadoPagoLabel(data.casa.estadoPago)}
+            </span>
+          </div>
+          <button 
+            className="btn-confirmar-pago"
+            onClick={() => navigate('/confirmar-pago')}
+          >
+            + Confirmar Pago
+          </button>
+        </div>
       </div>
 
       {/* Monthly Payment Info */}
