@@ -7,9 +7,11 @@ import Navbar from './shared/components/Navbar'
 import ProtectedRoute from './shared/components/ProtectedRoute'
 import Home from './home/Home'
 import MisPagos from './mis-pagos/MisPagos'
+import ConfirmarPago from './mis-pagos/ConfirmarPago'
 import MiCasa from './mi-casa/MiCasa'
 import Presupuesto from './presupuesto/Presupuesto'
 import Finanzas from './finanzas/Finanzas'
+import Comprobantes from './finanzas/Comprobantes'
 import GestionVecinos from './gestion-vecinos/GestionVecinos'
 import Solicitudes from './solicitudes/Solicitudes'
 import Reportes from './reportes/Reportes'
@@ -38,6 +40,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mis-pagos" element={<MisPagos />} />
+          <Route path="/confirmar-pago" element={<ConfirmarPago />} />
           <Route path="/mi-casa" element={<MiCasa />} />
           <Route path="/presupuesto" element={<Presupuesto />} />
           <Route
@@ -45,6 +48,14 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
                 <Finanzas />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/finanzas/comprobantes"
+            element={
+              <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
+                <Comprobantes />
               </ProtectedRoute>
             }
           />

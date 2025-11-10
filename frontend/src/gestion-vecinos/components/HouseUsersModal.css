@@ -332,6 +332,98 @@
   color: #333;
 }
 
+/* Inactivation Modal Styles */
+.inactivate-modal {
+  max-width: 600px;
+}
+
+.warning-box {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #856404;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.user-info-box {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.user-info-box p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.user-info-box strong {
+  color: #333;
+  margin-right: 8px;
+}
+
+.menu-option.danger {
+  color: #dc3545;
+}
+
+.menu-option.danger:hover {
+  background-color: #f8d7da;
+}
+
+.btn-submit.danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: none;
+}
+
+.btn-submit.danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-submit.danger:disabled {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-group label .required {
+  color: #dc3545;
+  margin-left: 4px;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.char-counter {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: right;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .modal-content {
@@ -353,5 +445,15 @@
   
   .house-info {
     padding: 16px;
+  }
+  
+  .inactivate-modal {
+    max-width: 100%;
+  }
+  
+  .warning-box,
+  .user-info-box {
+    padding: 0.75rem;
+    font-size: 0.85rem;
   }
 }
