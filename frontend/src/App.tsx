@@ -12,6 +12,7 @@ import MiCasa from './mi-casa/MiCasa'
 import Presupuesto from './presupuesto/Presupuesto'
 import Finanzas from './finanzas/Finanzas'
 import Comprobantes from './finanzas/Comprobantes'
+import Categorias from './finanzas/Categorias'
 import GestionVecinos from './gestion-vecinos/GestionVecinos'
 import Solicitudes from './solicitudes/Solicitudes'
 import Reportes from './reportes/Reportes'
@@ -56,6 +57,14 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
                 <Comprobantes />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/finanzas/categorias"
+            element={
+              <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
+                <Categorias />
               </ProtectedRoute>
             }
           />

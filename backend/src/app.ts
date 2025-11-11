@@ -13,6 +13,8 @@ import reactivacionRoutes from './routes/solicitudes/reactivacion.routes';
 import casasRoutes from './routes/casas';
 import cambiosRoutes from './routes/cambios';
 import pagosRoutes from './routes/pagos';
+import categoriasFinancierasRoutes from './routes/categorias-financieras';
+import movimientosFinancierosRoutes from './routes/movimientos-financieros';
 
 const app = express();
 
@@ -37,6 +39,8 @@ app.use('/api/solicitudes/reactivacion', reactivacionRoutes);
 app.use('/api/casas', casasRoutes);
 app.use('/api/cambios', cambiosRoutes);
 app.use('/api/pagos', pagosRoutes);
+app.use('/api/categorias-financieras', categoriasFinancierasRoutes);
+app.use('/api/movimientos-financieros', movimientosFinancierosRoutes);
 
 // 404 handler
 app.use((req, res) => {

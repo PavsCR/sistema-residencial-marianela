@@ -308,10 +308,54 @@ router.put('/:id/estado', authenticateToken, async (req, res) => {
       });
     }
 
+    // Obtener el pago con información de la casa
+    const pagoActual = await prisma.pago.findUnique({
+      where: { idPago: parseInt(id) },
+      include: {
+        casa: true
+      }
+    });
+
+    if (!pagoActual) {
+      return res.status(404).json({
+        success: false,
+        message: 'Pago no encontrado'
+      });
+    }
+
     const pago = await prisma.pago.update({
       where: { idPago: parseInt(id) },
       data: { estado }
     });
+
+    // Si se aprueba el pago, crear movimiento financiero automáticamente
+    if (estado === 'aprobado' && pagoActual.estado !== 'aprobado') {
+      // Buscar o crear la categoría "Pagos"
+      let categoriaPagos = await prisma.categoriaFinanciera.findFirst({
+        where: { nombre: 'Pagos' }
+      });
+
+      if (!categoriaPagos) {
+        categoriaPagos = await prisma.categoriaFinanciera.create({
+          data: {
+            nombre: 'Pagos',
+            descripcion: 'Pagos de cuotas mensuales de residentes'
+          }
+        });
+      }
+
+      // Crear el movimiento financiero
+      await prisma.movimientoFinanciero.create({
+        data: {
+          tipo: 'ingreso',
+          idCategoria: categoriaPagos.idCategoria,
+          detalles: `Pago de casa #${pagoActual.casa.numeroCasa}`,
+          monto: pagoActual.monto,
+          fecha: pagoActual.fechaPago,
+          idPago: pagoActual.idPago
+        }
+      });
+    }
 
     res.json({
       success: true,

@@ -232,9 +232,47 @@ model Pago {
 
   // Relaciones
   casa          Casa      @relation(fields: [idCasa], references: [idCasa])
+  movimiento    MovimientoFinanciero?
 
   @@index([idCasa])
   @@index([fechaPago])
   @@index([estado])
   @@map("pagos")
+}
+
+/// Categorías para movimientos financieros
+model CategoriaFinanciera {
+  idCategoria   Int       @id @default(autoincrement()) @map("id_categoria")
+  nombre        String    @unique @map("nombre") @db.VarChar(100)
+  descripcion   String?   @db.Text
+  activo        Boolean   @default(true)
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  movimientos   MovimientoFinanciero[]
+
+  @@map("categorias_financieras")
+}
+
+/// Movimientos financieros (ingresos y gastos)
+model MovimientoFinanciero {
+  idMovimiento  Int       @id @default(autoincrement()) @map("id_movimiento")
+  tipo          String    @map("tipo") @db.VarChar(20) // ingreso, gasto
+  idCategoria   Int       @map("id_categoria")
+  detalles      String    @map("detalles") @db.Text
+  monto         Decimal   @map("monto") @db.Decimal(10, 2)
+  fecha         DateTime  @default(now()) @map("fecha")
+  idPago        Int?      @unique @map("id_pago") // Relación opcional con pago aprobado
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  categoria     CategoriaFinanciera @relation(fields: [idCategoria], references: [idCategoria])
+  pago          Pago?               @relation(fields: [idPago], references: [idPago])
+
+  @@index([tipo])
+  @@index([idCategoria])
+  @@index([fecha])
+  @@map("movimientos_financieros")
 }

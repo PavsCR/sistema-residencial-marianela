@@ -48,8 +48,13 @@ const MisPagos = () => {
       setLoading(true);
       setError(null);
 
-      // TODO: Replace with actual token from localStorage after implementing login
-      const response = await fetch('http://localhost:3001/api/pagos/mi-casa');
+      const token = localStorage.getItem('token');
+
+      const response = await fetch('http://localhost:3001/api/pagos/mi-casa', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
       const result = await response.json();
 

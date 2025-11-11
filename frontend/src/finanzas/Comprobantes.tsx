@@ -193,35 +193,30 @@ const Comprobantes = () => {
       {/* Estadísticas */}
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon">📊</div>
           <div className="stat-info">
             <div className="stat-value">{estadisticas.total}</div>
             <div className="stat-label">Total Pagos</div>
           </div>
         </div>
         <div className="stat-card pending">
-          <div className="stat-icon">⏳</div>
           <div className="stat-info">
             <div className="stat-value">{estadisticas.pendientes}</div>
             <div className="stat-label">Pendientes</div>
           </div>
         </div>
         <div className="stat-card approved">
-          <div className="stat-icon">✅</div>
           <div className="stat-info">
             <div className="stat-value">{estadisticas.aprobados}</div>
             <div className="stat-label">Aprobados</div>
           </div>
         </div>
         <div className="stat-card rejected">
-          <div className="stat-icon">❌</div>
           <div className="stat-info">
             <div className="stat-value">{estadisticas.rechazados}</div>
             <div className="stat-label">Rechazados</div>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon">📎</div>
           <div className="stat-info">
             <div className="stat-value">{estadisticas.conComprobante}</div>
             <div className="stat-label">Con Comprobante</div>
@@ -250,8 +245,9 @@ const Comprobantes = () => {
       {/* Tabla de Comprobantes */}
       {filteredPagos.length === 0 ? (
         <div className="no-data">
-          <div className="no-data-icon">📭</div>
+          <div className="no-data-icon"></div>
           <h3>No hay pagos {filterEstado !== 'todos' ? getEstadoLabel(filterEstado).toLowerCase() : ''}</h3>
+          <p>No se encontraron registros de pagos para mostrar</p>
         </div>
       ) : (
         <div className="table-container">
@@ -285,9 +281,9 @@ const Comprobantes = () => {
                   </td>
                   <td className="comprobante-cell">
                     {pago.comprobante ? (
-                      <span className="has-comprobante">✓ Sí</span>
+                      <span className="has-comprobante">Sí</span>
                     ) : (
-                      <span className="no-comprobante">✗ No</span>
+                      <span className="no-comprobante">No</span>
                     )}
                   </td>
                   <td className="acciones-cell">
@@ -297,7 +293,7 @@ const Comprobantes = () => {
                         className="btn-revisar"
                         disabled={processing}
                       >
-                        👁️ Revisar
+                        Revisar
                       </button>
                     )}
                   </td>
@@ -356,14 +352,14 @@ const Comprobantes = () => {
                     className="btn-aprobar"
                     disabled={processing}
                   >
-                    ✓ Aprobar
+                    Aprobar Pago
                   </button>
                   <button
                     onClick={() => handleEstadoChange(modalData.pago.idPago, 'rechazado')}
                     className="btn-rechazar"
                     disabled={processing}
                   >
-                    ✗ Rechazar
+                    Rechazar Pago
                   </button>
                 </>
               )}
