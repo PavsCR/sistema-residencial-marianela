@@ -68,7 +68,41 @@ interface SolicitudReactivacion {
   };
 }
 
-type TabType = 'registro' | 'edicion' | 'desactivacion' | 'reactivacion';
+interface SolicitudCambioRol {
+  idSolicitud: number;
+  idUsuarioAfectado: number;
+  idUsuarioSolicitante: number;
+  idRevisor: number | null;
+  rolActual: string;
+  rolNuevo: string;
+  tipoCambio: string;
+  justificacion: string;
+  estado: string;
+  fechaSolicitud: string;
+  fechaRevision: string | null;
+  comentariosRevision: string | null;
+  usuarioAfectado: {
+    nombreCompleto: string;
+    correoElectronico: string;
+    telefono: string | null;
+    casa: {
+      numeroCasa: string;
+    } | null;
+    rol: {
+      nombreRol: string;
+    };
+  };
+  usuarioSolicitante: {
+    nombreCompleto: string;
+    correoElectronico: string;
+  };
+  revisor: {
+    nombreCompleto: string;
+    correoElectronico: string;
+  } | null;
+}
+
+type TabType = 'registro' | 'edicion' | 'desactivacion' | 'reactivacion' | 'cambio-rol';
 
 export default function Solicitudes() {
   const [activeTab, setActiveTab] = useState<TabType>('registro');
@@ -112,6 +146,16 @@ export default function Solicitudes() {
   const [selectedSolicitudReactivacion, setSelectedSolicitudReactivacion] = useState<SolicitudReactivacion | null>(null);
   const [motivoReactivacion, setMotivoReactivacion] = useState('');
   const [actionLoadingReactivacion, setActionLoadingReactivacion] = useState(false);
+
+  // Estados para solicitudes de cambio de rol
+  const [solicitudesCambioRol, setSolicitudesCambioRol] = useState<SolicitudCambioRol[]>([]);
+  const [loadingCambioRol, setLoadingCambioRol] = useState(true);
+  const [errorCambioRol, setErrorCambioRol] = useState('');
+  const [showReviewModalCambioRol, setShowReviewModalCambioRol] = useState(false);
+  const [selectedSolicitudCambioRol, setSelectedSolicitudCambioRol] = useState<SolicitudCambioRol | null>(null);
+  const [reviewEstadoCambioRol, setReviewEstadoCambioRol] = useState<'aprobada' | 'rechazada'>('aprobada');
+  const [comentariosCambioRol, setComentariosCambioRol] = useState('');
+  const [actionLoadingCambioRol, setActionLoadingCambioRol] = useState(false);
 
   const fetchSolicitudes = async () => {
     try {
@@ -189,11 +233,31 @@ export default function Solicitudes() {
     }
   };
 
+  const fetchSolicitudesCambioRol = async () => {
+    try {
+      setLoadingCambioRol(true);
+      setErrorCambioRol('');
+      const response = await authFetch('/solicitudes/cambio-rol');
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al cargar solicitudes de cambio de rol');
+      }
+
+      setSolicitudesCambioRol(result.data || []);
+    } catch (err: any) {
+      setErrorCambioRol(err.message || 'Error al cargar solicitudes de cambio de rol');
+    } finally {
+      setLoadingCambioRol(false);
+    }
+  };
+
   useEffect(() => {
     fetchSolicitudes();
     fetchSolicitudesEdicion();
     fetchSolicitudesDesactivacion();
     fetchSolicitudesReactivacion();
+    fetchSolicitudesCambioRol();
   }, []);
 
   const handleApproveClick = (solicitud: Solicitud) => {
@@ -499,7 +563,52 @@ export default function Solicitudes() {
     }
   };
 
-  if (loading && loadingEdicion && loadingDesactivacion && loadingReactivacion) {
+  // Handlers para solicitudes de cambio de rol
+  const handleReviewClickCambioRol = (solicitud: SolicitudCambioRol) => {
+    setSelectedSolicitudCambioRol(solicitud);
+    setReviewEstadoCambioRol('aprobada');
+    setComentariosCambioRol('');
+    setShowReviewModalCambioRol(true);
+  };
+
+  const handleReviewCambioRol = async () => {
+    if (!selectedSolicitudCambioRol) return;
+
+    try {
+      setActionLoadingCambioRol(true);
+      const response = await authFetch(
+        `/solicitudes/cambio-rol/${selectedSolicitudCambioRol.idSolicitud}/revisar`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            estado: reviewEstadoCambioRol,
+            comentariosRevision: comentariosCambioRol || undefined,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al revisar solicitud');
+      }
+
+      alert(
+        reviewEstadoCambioRol === 'aprobada'
+          ? 'Solicitud aprobada exitosamente. El rol del usuario ha sido actualizado.'
+          : 'Solicitud rechazada.'
+      );
+      setShowReviewModalCambioRol(false);
+      fetchSolicitudesCambioRol();
+    } catch (err: any) {
+      alert(err.message || 'Error al revisar solicitud');
+    } finally {
+      setActionLoadingCambioRol(false);
+    }
+  };
+
+  if (loading && loadingEdicion && loadingDesactivacion && loadingReactivacion && loadingCambioRol) {
     return (
       <div className="page-container">
         <h1>Solicitudes</h1>
@@ -541,6 +650,13 @@ export default function Solicitudes() {
         >
           Solicitudes de Reactivación
           {solicitudesReactivacion.length > 0 && <span className="badge">{solicitudesReactivacion.length}</span>}
+        </button>
+        <button
+          className={`tab ${activeTab === 'cambio-rol' ? 'active' : ''}`}
+          onClick={() => setActiveTab('cambio-rol')}
+        >
+          Cambio de Rol
+          {solicitudesCambioRol.length > 0 && <span className="badge">{solicitudesCambioRol.length}</span>}
         </button>
       </div>
 
@@ -802,6 +918,120 @@ export default function Solicitudes() {
                       Rechazar
                     </button>
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Contenido de Solicitudes de Cambio de Rol */}
+      {activeTab === 'cambio-rol' && (
+        <>
+          {errorCambioRol && <div className="error-message">{errorCambioRol}</div>}
+
+          {solicitudesCambioRol.length === 0 ? (
+            <div className="no-solicitudes">
+              <p>No hay solicitudes de cambio de rol pendientes</p>
+            </div>
+          ) : (
+            <div className="solicitudes-grid">
+              {solicitudesCambioRol.map((solicitud) => (
+                <div key={solicitud.idSolicitud} className="solicitud-card cambio-rol-card">
+                  <div className="solicitud-header">
+                    <h3>
+                      {solicitud.tipoCambio === 'asignar_admin' ? '🔼 Asignar Administrador' : '🔽 Remover Administrador'}
+                    </h3>
+                    <span className={`estado-badge ${solicitud.estado}`}>
+                      {solicitud.estado === 'pendiente' && '⏳ Pendiente'}
+                      {solicitud.estado === 'aprobada' && '✅ Aprobada'}
+                      {solicitud.estado === 'rechazada' && '❌ Rechazada'}
+                    </span>
+                    <p className="fecha-solicitud">
+                      {new Date(solicitud.fechaSolicitud).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </p>
+                  </div>
+                  
+                  <div className="solicitud-info">
+                    <h4>👤 Usuario Afectado</h4>
+                    <p>
+                      <strong>Nombre:</strong> {solicitud.usuarioAfectado.nombreCompleto}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {solicitud.usuarioAfectado.correoElectronico}
+                    </p>
+                    {solicitud.usuarioAfectado.casa && (
+                      <p>
+                        <strong>Casa:</strong> #{solicitud.usuarioAfectado.casa.numeroCasa}
+                      </p>
+                    )}
+                    <p>
+                      <strong>Rol Actual:</strong>{' '}
+                      <span className="rol-badge actual">{solicitud.rolActual}</span>
+                    </p>
+                    <p>
+                      <strong>Rol Nuevo:</strong>{' '}
+                      <span className="rol-badge nuevo">{solicitud.rolNuevo}</span>
+                    </p>
+                  </div>
+
+                  <div className="solicitud-info">
+                    <h4>📝 Información de la Solicitud</h4>
+                    <p>
+                      <strong>Solicitado por:</strong> {solicitud.usuarioSolicitante.nombreCompleto}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {solicitud.usuarioSolicitante.correoElectronico}
+                    </p>
+                    <div className="justificacion-box">
+                      <strong>Justificación:</strong>
+                      <p>{solicitud.justificacion}</p>
+                    </div>
+                  </div>
+
+                  {solicitud.estado !== 'pendiente' && solicitud.revisor && (
+                    <div className="solicitud-info revision-info">
+                      <h4>✍️ Revisión</h4>
+                      <p>
+                        <strong>Revisado por:</strong> {solicitud.revisor.nombreCompleto}
+                      </p>
+                      <p>
+                        <strong>Fecha de revisión:</strong>{' '}
+                        {solicitud.fechaRevision &&
+                          new Date(solicitud.fechaRevision).toLocaleDateString('es-ES', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                      </p>
+                      {solicitud.comentariosRevision && (
+                        <div className="comentarios-box">
+                          <strong>Comentarios:</strong>
+                          <p>{solicitud.comentariosRevision}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {solicitud.estado === 'pendiente' && (
+                    <div className="solicitud-actions">
+                      <button
+                        className="btn-review"
+                        onClick={() => handleReviewClickCambioRol(solicitud)}
+                        disabled={actionLoadingCambioRol}
+                      >
+                        Revisar Solicitud
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -1195,6 +1425,103 @@ export default function Solicitudes() {
                 className="btn-cancel"
                 onClick={() => setShowRejectModalReactivacion(false)}
                 disabled={actionLoadingReactivacion}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Revisión de Cambio de Rol */}
+      {showReviewModalCambioRol && selectedSolicitudCambioRol && (
+        <div className="modal-overlay" onClick={() => setShowReviewModalCambioRol(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Revisar Solicitud de Cambio de Rol</h2>
+            
+            <div className="review-info-box">
+              <p>
+                <strong>Usuario:</strong> {selectedSolicitudCambioRol.usuarioAfectado.nombreCompleto}
+              </p>
+              <p>
+                <strong>Cambio solicitado:</strong>{' '}
+                <span className="rol-badge">{selectedSolicitudCambioRol.rolActual}</span>
+                {' → '}
+                <span className="rol-badge">{selectedSolicitudCambioRol.rolNuevo}</span>
+              </p>
+              <p>
+                <strong>Tipo:</strong>{' '}
+                {selectedSolicitudCambioRol.tipoCambio === 'asignar_admin'
+                  ? 'Asignar Administrador'
+                  : 'Remover Administrador'}
+              </p>
+              <p>
+                <strong>Solicitado por:</strong>{' '}
+                {selectedSolicitudCambioRol.usuarioSolicitante.nombreCompleto}
+              </p>
+              <div style={{ marginTop: '1rem' }}>
+                <strong>Justificación:</strong>
+                <p style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
+                  {selectedSolicitudCambioRol.justificacion}
+                </p>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="decision-cambio-rol">
+                Decisión <span className="required">*</span>
+              </label>
+              <select
+                id="decision-cambio-rol"
+                value={reviewEstadoCambioRol}
+                onChange={(e) => setReviewEstadoCambioRol(e.target.value as 'aprobada' | 'rechazada')}
+                disabled={actionLoadingCambioRol}
+              >
+                <option value="aprobada">✅ Aprobar</option>
+                <option value="rechazada">❌ Rechazar</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="comentarios-cambio-rol">
+                Comentarios {reviewEstadoCambioRol === 'rechazada' && <span className="required">*</span>}
+              </label>
+              <textarea
+                id="comentarios-cambio-rol"
+                value={comentariosCambioRol}
+                onChange={(e) => setComentariosCambioRol(e.target.value)}
+                placeholder={
+                  reviewEstadoCambioRol === 'rechazada'
+                    ? 'Explica el motivo del rechazo (obligatorio)'
+                    : 'Comentarios adicionales (opcional)'
+                }
+                rows={4}
+                disabled={actionLoadingCambioRol}
+              />
+              {reviewEstadoCambioRol === 'rechazada' && (
+                <small>Los comentarios son obligatorios al rechazar</small>
+              )}
+            </div>
+
+            <div className="modal-actions">
+              <button
+                className={reviewEstadoCambioRol === 'aprobada' ? 'btn-approve' : 'btn-reject'}
+                onClick={handleReviewCambioRol}
+                disabled={
+                  actionLoadingCambioRol ||
+                  (reviewEstadoCambioRol === 'rechazada' && comentariosCambioRol.trim().length === 0)
+                }
+              >
+                {actionLoadingCambioRol
+                  ? 'Procesando...'
+                  : reviewEstadoCambioRol === 'aprobada'
+                  ? 'Aprobar Solicitud'
+                  : 'Rechazar Solicitud'}
+              </button>
+              <button
+                className="btn-cancel"
+                onClick={() => setShowReviewModalCambioRol(false)}
+                disabled={actionLoadingCambioRol}
               >
                 Cancelar
               </button>

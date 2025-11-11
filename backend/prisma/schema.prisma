@@ -76,6 +76,9 @@ model Usuario {
   sesionesActivas        SesionActiva[]
   solicitudesCambio      SolicitudCambio[]
   solicitudesCambioRevisadas SolicitudCambio[] @relation("ReviewedChanges")
+  solicitudesRolAfectado     SolicitudCambioRol[] @relation("UserAffectedByRoleChange")
+  solicitudesRolSolicitadas  SolicitudCambioRol[] @relation("UserRequestingRoleChange")
+  solicitudesRolRevisadas    SolicitudCambioRol[] @relation("UserReviewingRoleChange")
 
   @@index([correoElectronico])
   @@index([estadoCuenta])
@@ -196,6 +199,35 @@ model SolicitudCambio {
   revisor          Usuario?  @relation("ReviewedChanges", fields: [idRevisor], references: [idUsuario])
 
   @@map("solicitudes_cambio")
+}
+
+/// Solicitudes de cambio de rol (asignar/remover rol de administrador) - GV_05
+model SolicitudCambioRol {
+  idSolicitud            Int       @id @default(autoincrement()) @map("id_solicitud")
+  idUsuarioAfectado      Int       @map("id_usuario_afectado") // Usuario que recibirá el cambio de rol
+  idUsuarioSolicitante   Int       @map("id_usuario_solicitante") // Administrador que hace la solicitud
+  rolActual              String    @map("rol_actual") @db.VarChar(50)
+  rolNuevo               String    @map("rol_nuevo") @db.VarChar(50)
+  tipoCambio             String    @map("tipo_cambio") @db.VarChar(50) // asignar_admin, remover_admin
+  justificacion          String    @map("justificacion") @db.Text
+  estado                 String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  fechaSolicitud         DateTime  @default(now()) @map("fecha_solicitud")
+  fechaRevision          DateTime? @map("fecha_revision")
+  idRevisor              Int?      @map("id_revisor") // Administrador que aprueba/rechaza
+  comentariosRevision    String?   @map("comentarios_revision") @db.Text
+  creadoEn               DateTime  @default(now()) @map("creado_en")
+  actualizadoEn          DateTime  @updatedAt @map("actualizado_en")
+
+  // Relaciones
+  usuarioAfectado        Usuario   @relation("UserAffectedByRoleChange", fields: [idUsuarioAfectado], references: [idUsuario])
+  usuarioSolicitante     Usuario   @relation("UserRequestingRoleChange", fields: [idUsuarioSolicitante], references: [idUsuario])
+  revisor                Usuario?  @relation("UserReviewingRoleChange", fields: [idRevisor], references: [idUsuario])
+
+  @@index([idUsuarioAfectado])
+  @@index([idUsuarioSolicitante])
+  @@index([estado])
+  @@index([fechaSolicitud])
+  @@map("solicitudes_cambio_rol")
 }
 
 /// Sesiones JWT activas para rastreo y revocación

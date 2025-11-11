@@ -13,6 +13,8 @@ import Presupuesto from './presupuesto/Presupuesto'
 import Finanzas from './finanzas/Finanzas'
 import Comprobantes from './finanzas/Comprobantes'
 import Categorias from './finanzas/Categorias'
+import PagosGeneral from './finanzas/PagosGeneral'
+import PagosCasa from './finanzas/PagosCasa'
 import GestionVecinos from './gestion-vecinos/GestionVecinos'
 import Solicitudes from './solicitudes/Solicitudes'
 import Reportes from './reportes/Reportes'
@@ -65,6 +67,22 @@ function AppContent() {
             element={
               <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
                 <Categorias />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/finanzas/pagos"
+            element={
+              <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
+                <PagosGeneral />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/finanzas/pagos/:numeroCasa"
+            element={
+              <ProtectedRoute allowedRoles={['administrador', 'super_admin']}>
+                <PagosCasa />
               </ProtectedRoute>
             }
           />

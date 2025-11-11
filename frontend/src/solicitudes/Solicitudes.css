@@ -364,3 +364,154 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* Estilos para Solicitudes de Cambio de Rol */
+.cambio-rol-card {
+  border-left: 4px solid #667eea;
+}
+
+.cambio-rol-card .solicitud-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.cambio-rol-card .solicitud-header h3 {
+  font-size: 1.1rem;
+  color: #667eea;
+}
+
+.cambio-rol-card .fecha-solicitud {
+  font-size: 0.85rem;
+  color: #666;
+  background: #f5f5f5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.cambio-rol-card .solicitud-info h4 {
+  color: #667eea;
+  font-size: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.rol-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.rol-badge.actual {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.rol-badge.nuevo {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.justificacion-box,
+.comentarios-box {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  border-left: 3px solid #667eea;
+}
+
+.justificacion-box p,
+.comentarios-box p {
+  margin: 0.5rem 0 0 0;
+  color: #555;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.revision-info {
+  background: #f0f9ff;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+}
+
+.btn-review {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.btn-review:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+}
+
+.review-info-box {
+  background: #f0f9ff;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #bae6fd;
+  margin-bottom: 1.5rem;
+}
+
+.review-info-box p {
+  margin: 0.75rem 0;
+  color: #374151;
+}
+
+.review-info-box strong {
+  color: #1e40af;
+}
+
+.review-info-box .rol-badge {
+  margin: 0 0.25rem;
+}
+
+.modal-content select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+}
+
+.modal-content select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.required {
+  color: #dc3545;
+}
+
+/* Estados de solicitud */
+.estado-badge.pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.estado-badge.aprobada {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.estado-badge.rechazada {
+  background-color: #fee2e2;
+  color: #991b1b;
+}

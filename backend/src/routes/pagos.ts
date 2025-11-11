@@ -139,14 +139,93 @@ router.get('/mi-casa', async (req, res) => {
   }
 });
 
+// GET /api/pagos/casas-resumen - Obtener resumen de pagos de todas las casas (para administradores)
+router.get('/casas-resumen', authenticateToken, async (req, res) => {
+  try {
+    // Obtener todas las casas con su información de usuarios
+    const casas = await prisma.casa.findMany({
+      include: {
+        usuarios: true,
+        pagos: {
+          where: {
+            estado: 'aprobado'
+          },
+          orderBy: {
+            fechaPago: 'desc'
+          }
+        }
+      },
+      orderBy: {
+        numeroCasa: 'asc'
+      }
+    });
+
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const cuotaMensual = 25000; // ₡25,000 por defecto
+
+    const casasResumen = casas.map(casa => {
+      // Calcular pagos del mes actual
+      const pagosDelMes = casa.pagos.filter(pago => {
+        const fechaPago = new Date(pago.fechaPago);
+        return fechaPago >= startOfMonth && fechaPago <= endOfMonth;
+      });
+
+      const totalPagadoMes = pagosDelMes.reduce((sum, pago) => {
+        return sum + parseFloat(pago.monto.toString());
+      }, 0);
+
+      const montoAdeudado = Math.max(0, cuotaMensual - totalPagadoMes);
+
+      // Obtener el último pago (cualquier mes)
+      const ultimoPago = casa.pagos.length > 0 ? casa.pagos[0] : null;
+
+      // Calcular total pagado histórico
+      const totalPagado = casa.pagos.reduce((sum, pago) => {
+        return sum + parseFloat(pago.monto.toString());
+      }, 0);
+
+      return {
+        idCasa: casa.idCasa,
+        numeroCasa: casa.numeroCasa,
+        estadoPago: casa.estadoPago,
+        vecinos: casa.usuarios.length,
+        ultimoPago: ultimoPago ? {
+          monto: ultimoPago.monto,
+          fecha: ultimoPago.fechaPago,
+          descripcion: ultimoPago.descripcion
+        } : null,
+        totalPagado: totalPagado,
+        montoAdeudado: montoAdeudado
+      };
+    });
+
+    res.json({
+      success: true,
+      data: casasResumen
+    });
+  } catch (error: any) {
+    console.error('Error al obtener resumen de casas:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 // GET /api/pagos/casa/:numeroCasa - Obtener historial de pagos de una casa específica (para administradores)
 router.get('/casa/:numeroCasa', authenticateToken, async (req, res) => {
   try {
     const { numeroCasa } = req.params;
 
-    // Buscar la casa
+    // Buscar la casa con usuarios
     const casa = await prisma.casa.findUnique({
-      where: { numeroCasa }
+      where: { numeroCasa },
+      include: {
+        usuarios: true
+      }
     });
 
     if (!casa) {
@@ -166,21 +245,47 @@ router.get('/casa/:numeroCasa', authenticateToken, async (req, res) => {
         monto: true,
         descripcion: true,
         fechaPago: true,
-        estado: true
+        metodoPago: true,
+        estado: true,
+        comprobante: true
       },
       orderBy: {
         fechaPago: 'desc'
       }
     });
 
+    // Calcular información del mes actual
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    const cuotaMensual = 25000;
+
+    const pagosDelMes = pagos.filter(pago => {
+      const fechaPago = new Date(pago.fechaPago);
+      return pago.estado === 'aprobado' && fechaPago >= startOfMonth && fechaPago <= endOfMonth;
+    });
+
+    const totalPagadoMes = pagosDelMes.reduce((sum, pago) => {
+      return sum + parseFloat(pago.monto.toString());
+    }, 0);
+
+    const montoAdeudado = Math.max(0, cuotaMensual - totalPagadoMes);
+
     res.json({
       success: true,
       data: {
         casa: {
           numeroCasa: casa.numeroCasa,
-          estadoPago: casa.estadoPago
+          estadoPago: casa.estadoPago,
+          usuarios: casa.usuarios.length
         },
-        pagos
+        pagos,
+        mesActual: {
+          cuotaMensual,
+          totalPagado: totalPagadoMes,
+          montoAdeudado,
+          mes: now.toLocaleString('es-CR', { month: 'long', year: 'numeric' })
+        }
       }
     });
   } catch (error: any) {
@@ -431,6 +536,75 @@ router.post('/', authenticateToken, async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error al crear pago:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// POST /api/pagos/confirmar-admin - Confirmar pago como administrador con comprobante (para casas sin usuarios registrados)
+router.post('/confirmar-admin', authenticateToken, upload.single('comprobante'), async (req, res) => {
+  try {
+    const { numeroCasa, fechaPago, mesPago, monto, descripcion, metodoPago } = req.body;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere un comprobante de pago'
+      });
+    }
+
+    // Buscar la casa
+    const casa = await prisma.casa.findUnique({
+      where: { numeroCasa }
+    });
+
+    if (!casa) {
+      return res.status(404).json({
+        success: false,
+        message: 'Casa no encontrada'
+      });
+    }
+
+    // Create payment record with estado pendiente (awaiting admin approval)
+    const pago = await prisma.pago.create({
+      data: {
+        idCasa: casa.idCasa,
+        monto: parseFloat(monto),
+        descripcion: `${descripcion} - Mes: ${mesPago}`,
+        fechaPago: new Date(fechaPago),
+        metodoPago: metodoPago,
+        comprobante: file.filename,
+        estado: 'pendiente' // Pending approval
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Pago registrado exitosamente. Pendiente de aprobación.',
+      data: {
+        idPago: pago.idPago,
+        monto: pago.monto,
+        descripcion: pago.descripcion,
+        fechaPago: pago.fechaPago,
+        estado: pago.estado
+      }
+    });
+  } catch (error: any) {
+    console.error('Error al confirmar pago:', error);
+    
+    // Delete uploaded file if there was an error
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error al eliminar archivo:', unlinkError);
+      }
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor',

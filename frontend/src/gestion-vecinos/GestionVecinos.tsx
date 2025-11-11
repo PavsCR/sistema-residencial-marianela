@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './GestionVecinos.css';
 import { fetchHousesFromAPI, type HouseData } from '../shared/data/houses';
 import HouseUsersModal from './components/HouseUsersModal';
@@ -10,7 +9,6 @@ const GestionVecinos = () => {
   const [selectedHouseId, setSelectedHouseId] = useState('');
   const [houses, setHouses] = useState<HouseData[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadHouses = async () => {
@@ -52,6 +50,7 @@ const GestionVecinos = () => {
   return (
     <div className="page-container">
       <h1>Gestión de Vecinos</h1>
+
       <div className="search-container">
         <input
           type="text"

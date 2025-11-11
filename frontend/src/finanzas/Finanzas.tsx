@@ -309,6 +309,9 @@ const Finanzas = () => {
         <button onClick={() => navigate('/finanzas/categorias')} className="btn-nav">
           Gestionar Categorías
         </button>
+        <button onClick={() => navigate('/finanzas/pagos')} className="btn-nav">
+          Ver Pagos por Casa
+        </button>
         <button onClick={() => openModal()} className="btn-add">
           + Nuevo Movimiento
         </button>

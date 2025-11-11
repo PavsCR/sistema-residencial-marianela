@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { prisma } from '../config/prisma';
+import { authenticateToken } from '../shared/middleware/auth.middleware';
 
 const router = Router();
 
@@ -99,6 +100,57 @@ router.get('/', async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error interno del servidor'
+    });
+  }
+});
+
+// PUT /api/casas/:numeroCasa/estado-pago - Actualizar estado de pago de una casa (para administradores)
+router.put('/:numeroCasa/estado-pago', authenticateToken, async (req, res) => {
+  try {
+    const { numeroCasa } = req.params;
+    const { estadoPago } = req.body;
+
+    // Validar estado
+    if (!['al_dia', 'moroso', 'en_arreglo'].includes(estadoPago)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Estado de pago inválido. Debe ser: al_dia, moroso o en_arreglo'
+      });
+    }
+
+    // Buscar la casa
+    const casa = await prisma.casa.findUnique({
+      where: { numeroCasa }
+    });
+
+    if (!casa) {
+      return res.status(404).json({
+        success: false,
+        message: 'Casa no encontrada'
+      });
+    }
+
+    // Actualizar estado de pago
+    const casaActualizada = await prisma.casa.update({
+      where: { numeroCasa },
+      data: { estadoPago }
+    });
+
+    res.json({
+      success: true,
+      message: 'Estado de pago actualizado exitosamente',
+      data: {
+        numeroCasa: casaActualizada.numeroCasa,
+        estadoPago: casaActualizada.estadoPago
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Error al actualizar estado de pago:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

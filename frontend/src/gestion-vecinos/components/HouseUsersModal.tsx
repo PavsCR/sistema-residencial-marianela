@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { authFetch } from '../../services/api';
 import './HouseUsersModal.css';
 import EditUserModal from './EditUserModal.tsx';
+import SolicitarCambioRolModal from './SolicitarCambioRolModal.tsx';
 
 interface Usuario {
   idUsuario: number;
@@ -46,6 +47,8 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
   const [inactivateUser, setInactivateUser] = useState<Usuario | null>(null);
   const [inactivateMotivo, setInactivateMotivo] = useState('');
   const [inactivateLoading, setInactivateLoading] = useState(false);
+  const [showCambioRolModal, setShowCambioRolModal] = useState(false);
+  const [cambioRolUser, setCambioRolUser] = useState<Usuario | null>(null);
 
   useEffect(() => {
     if (isOpen && houseId) {
@@ -250,6 +253,16 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
                                   >
                                     Editar información
                                   </button>
+                                  <button
+                                    className="menu-option"
+                                    onClick={() => {
+                                      setCambioRolUser(usuario);
+                                      setShowCambioRolModal(true);
+                                      setOpenMenuId(null);
+                                    }}
+                                  >
+                                    Solicitar cambio de rol
+                                  </button>
                                   {usuario.estadoCuenta === 'activo' && !isCurrentUser && (
                                     <button
                                       className="menu-option danger"
@@ -359,6 +372,18 @@ const HouseUsersModal: React.FC<HouseUsersModalProps> = ({ isOpen, houseId, onCl
             </div>
           </div>
         </div>
+      )}
+
+      {showCambioRolModal && cambioRolUser && (
+        <SolicitarCambioRolModal
+          isOpen={showCambioRolModal}
+          usuario={cambioRolUser}
+          onClose={() => setShowCambioRolModal(false)}
+          onSuccess={() => {
+            fetchHouseUsers();
+            setShowCambioRolModal(false);
+          }}
+        />
       )}
     </div>
   );
