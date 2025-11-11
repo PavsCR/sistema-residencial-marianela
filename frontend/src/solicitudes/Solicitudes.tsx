@@ -72,15 +72,18 @@ interface SolicitudCambioRol {
   idSolicitud: number;
   idUsuarioAfectado: number;
   idUsuarioSolicitante: number;
-  idRevisor: number | null;
+  idPrimerRevisor: number | null;
+  idSegundoRevisor: number | null;
   rolActual: string;
   rolNuevo: string;
   tipoCambio: string;
   justificacion: string;
-  estado: string;
+  estado: string; // pendiente, aprobada_parcial, aprobada, rechazada
   fechaSolicitud: string;
-  fechaRevision: string | null;
-  comentariosRevision: string | null;
+  fechaPrimeraRevision: string | null;
+  fechaSegundaRevision: string | null;
+  comentariosPrimerRevisor: string | null;
+  comentariosSegundoRevisor: string | null;
   usuarioAfectado: {
     nombreCompleto: string;
     correoElectronico: string;
@@ -96,7 +99,11 @@ interface SolicitudCambioRol {
     nombreCompleto: string;
     correoElectronico: string;
   };
-  revisor: {
+  primerRevisor: {
+    nombreCompleto: string;
+    correoElectronico: string;
+  } | null;
+  segundoRevisor: {
     nombreCompleto: string;
     correoElectronico: string;
   } | null;
@@ -944,6 +951,7 @@ export default function Solicitudes() {
                     </h3>
                     <span className={`estado-badge ${solicitud.estado}`}>
                       {solicitud.estado === 'pendiente' && '⏳ Pendiente'}
+                      {solicitud.estado === 'aprobada_parcial' && '🔵 Aprobada Parcial (1/2)'}
                       {solicitud.estado === 'aprobada' && '✅ Aprobada'}
                       {solicitud.estado === 'rechazada' && '❌ Rechazada'}
                     </span>
@@ -995,40 +1003,96 @@ export default function Solicitudes() {
                     </div>
                   </div>
 
-                  {solicitud.estado !== 'pendiente' && solicitud.revisor && (
+                  {/* Información de revisión */}
+                  {(solicitud.estado === 'aprobada_parcial' || 
+                    solicitud.estado === 'aprobada' || 
+                    solicitud.estado === 'rechazada') && (
                     <div className="solicitud-info revision-info">
-                      <h4>✍️ Revisión</h4>
-                      <p>
-                        <strong>Revisado por:</strong> {solicitud.revisor.nombreCompleto}
-                      </p>
-                      <p>
-                        <strong>Fecha de revisión:</strong>{' '}
-                        {solicitud.fechaRevision &&
-                          new Date(solicitud.fechaRevision).toLocaleDateString('es-ES', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                      </p>
-                      {solicitud.comentariosRevision && (
-                        <div className="comentarios-box">
-                          <strong>Comentarios:</strong>
-                          <p>{solicitud.comentariosRevision}</p>
+                      <h4>✍️ Revisiones</h4>
+                      
+                      {/* Primera revisión */}
+                      {solicitud.primerRevisor && (
+                        <div className="revision-item">
+                          <h5>
+                            {solicitud.estado === 'aprobada' && !solicitud.segundoRevisor 
+                              ? '⭐ Aprobación de Super Administrador' 
+                              : '📝 Primera Revisión'}
+                          </h5>
+                          <p>
+                            <strong>Revisado por:</strong> {solicitud.primerRevisor.nombreCompleto}
+                          </p>
+                          <p>
+                            <strong>Fecha:</strong>{' '}
+                            {solicitud.fechaPrimeraRevision &&
+                              new Date(solicitud.fechaPrimeraRevision).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                          </p>
+                          {solicitud.comentariosPrimerRevisor && (
+                            <div className="comentarios-box">
+                              <strong>Comentarios:</strong>
+                              <p>{solicitud.comentariosPrimerRevisor}</p>
+                            </div>
+                          )}
+                          {solicitud.estado === 'aprobada' && !solicitud.segundoRevisor && (
+                            <div className="super-admin-badge">
+                              ⚡ Aprobación directa por privilegios de super administrador
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Segunda revisión */}
+                      {solicitud.segundoRevisor && (
+                        <div className="revision-item">
+                          <h5>📝 Segunda Revisión</h5>
+                          <p>
+                            <strong>Revisado por:</strong> {solicitud.segundoRevisor.nombreCompleto}
+                          </p>
+                          <p>
+                            <strong>Fecha:</strong>{' '}
+                            {solicitud.fechaSegundaRevision &&
+                              new Date(solicitud.fechaSegundaRevision).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                          </p>
+                          {solicitud.comentariosSegundoRevisor && (
+                            <div className="comentarios-box">
+                              <strong>Comentarios:</strong>
+                              <p>{solicitud.comentariosSegundoRevisor}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Mensaje de estado parcial */}
+                      {solicitud.estado === 'aprobada_parcial' && (
+                        <div className="alerta-aprobacion-parcial">
+                          ⚠️ <strong>Pendiente segunda aprobación</strong><br/>
+                          Esta solicitud ha sido aprobada por un administrador y requiere la aprobación de un segundo administrador para aplicar el cambio.
                         </div>
                       )}
                     </div>
                   )}
 
-                  {solicitud.estado === 'pendiente' && (
+                  {(solicitud.estado === 'pendiente' || solicitud.estado === 'aprobada_parcial') && (
                     <div className="solicitud-actions">
                       <button
                         className="btn-review"
                         onClick={() => handleReviewClickCambioRol(solicitud)}
                         disabled={actionLoadingCambioRol}
                       >
-                        Revisar Solicitud
+                        {solicitud.estado === 'aprobada_parcial' 
+                          ? '🔒 Dar Segunda Aprobación' 
+                          : 'Revisar Solicitud'}
                       </button>
                     </div>
                   )}

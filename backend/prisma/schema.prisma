@@ -78,7 +78,8 @@ model Usuario {
   solicitudesCambioRevisadas SolicitudCambio[] @relation("ReviewedChanges")
   solicitudesRolAfectado     SolicitudCambioRol[] @relation("UserAffectedByRoleChange")
   solicitudesRolSolicitadas  SolicitudCambioRol[] @relation("UserRequestingRoleChange")
-  solicitudesRolRevisadas    SolicitudCambioRol[] @relation("UserReviewingRoleChange")
+  solicitudesRolPrimeraRevision  SolicitudCambioRol[] @relation("FirstReviewerRoleChange")
+  solicitudesRolSegundaRevision  SolicitudCambioRol[] @relation("SecondReviewerRoleChange")
 
   @@index([correoElectronico])
   @@index([estadoCuenta])
@@ -210,18 +211,22 @@ model SolicitudCambioRol {
   rolNuevo               String    @map("rol_nuevo") @db.VarChar(50)
   tipoCambio             String    @map("tipo_cambio") @db.VarChar(50) // asignar_admin, remover_admin
   justificacion          String    @map("justificacion") @db.Text
-  estado                 String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada, rechazada
+  estado                 String    @default("pendiente") @map("estado") @db.VarChar(50) // pendiente, aprobada_parcial, aprobada, rechazada
   fechaSolicitud         DateTime  @default(now()) @map("fecha_solicitud")
-  fechaRevision          DateTime? @map("fecha_revision")
-  idRevisor              Int?      @map("id_revisor") // Administrador que aprueba/rechaza
-  comentariosRevision    String?   @map("comentarios_revision") @db.Text
+  fechaPrimeraRevision   DateTime? @map("fecha_primera_revision")
+  fechaSegundaRevision   DateTime? @map("fecha_segunda_revision")
+  idPrimerRevisor        Int?      @map("id_primer_revisor") // Primer administrador que aprueba
+  idSegundoRevisor       Int?      @map("id_segundo_revisor") // Segundo administrador que aprueba
+  comentariosPrimerRevisor  String?   @map("comentarios_primer_revisor") @db.Text
+  comentariosSegundoRevisor String?   @map("comentarios_segundo_revisor") @db.Text
   creadoEn               DateTime  @default(now()) @map("creado_en")
   actualizadoEn          DateTime  @updatedAt @map("actualizado_en")
 
   // Relaciones
   usuarioAfectado        Usuario   @relation("UserAffectedByRoleChange", fields: [idUsuarioAfectado], references: [idUsuario])
   usuarioSolicitante     Usuario   @relation("UserRequestingRoleChange", fields: [idUsuarioSolicitante], references: [idUsuario])
-  revisor                Usuario?  @relation("UserReviewingRoleChange", fields: [idRevisor], references: [idUsuario])
+  primerRevisor          Usuario?  @relation("FirstReviewerRoleChange", fields: [idPrimerRevisor], references: [idUsuario])
+  segundoRevisor         Usuario?  @relation("SecondReviewerRoleChange", fields: [idSegundoRevisor], references: [idUsuario])
 
   @@index([idUsuarioAfectado])
   @@index([idUsuarioSolicitante])
