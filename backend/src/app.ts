@@ -16,6 +16,7 @@ import cambiosRoutes from './routes/cambios';
 import pagosRoutes from './routes/pagos';
 import categoriasFinancierasRoutes from './routes/categorias-financieras';
 import movimientosFinancierosRoutes from './routes/movimientos-financieros';
+import reportesRoutes from './routes/reportes';
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use('/api/cambios', cambiosRoutes);
 app.use('/api/pagos', pagosRoutes);
 app.use('/api/categorias-financieras', categoriasFinancierasRoutes);
 app.use('/api/movimientos-financieros', movimientosFinancierosRoutes);
+app.use('/api/reportes', reportesRoutes);
 
 // 404 handler
 app.use((req, res) => {
