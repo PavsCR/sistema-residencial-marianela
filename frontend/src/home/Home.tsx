@@ -33,10 +33,7 @@ const Home = () => {
 
   const handleHouseClick = (id: string) => {
     if (!isAdmin) return; // Bloquear click si no es admin
-    navigate('/finanzas');
-    //navigate('/finanzas/pagos');
-    /*Implementación a futuro: Al ingresar al modulo "\Finanzas > Pagos\"
-    mediante esta redireccion realiza el filtro segun la casa*/
+    navigate(`/finanzas/pagos/${id}`);
   };
 
   return (

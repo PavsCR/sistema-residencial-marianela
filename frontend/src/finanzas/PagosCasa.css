@@ -384,23 +384,20 @@
 }
 
 .modal-close {
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
   border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
   cursor: pointer;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  padding: 0.2rem;
 }
 
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
+  transform: scale(1.2) rotate(90deg);
 }
 
 .modal-body {
@@ -572,6 +569,105 @@
 .btn-retry:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .casa-info-panel,
+  .payment-card,
+  .no-payments,
+  .loading-container,
+  .error-message,
+  .modal-content {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+
+  .info-label {
+    color: #94a3b8;
+  }
+
+  .info-value {
+    color: #f1f5f9;
+  }
+
+  .payment-amount {
+    color: #f1f5f9;
+  }
+
+  .payment-info-row .label {
+    color: #94a3b8;
+  }
+
+  .payment-info-row .value {
+    color: #e2e8f0;
+  }
+
+  .payment-description {
+    background-color: #0f172a;
+    color: #cbd5e1;
+  }
+
+  .no-payments h3 {
+    color: #cbd5e1;
+  }
+
+  .no-payments p {
+    color: #94a3b8;
+  }
+
+  .form-group label {
+    color: #e2e8f0;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: #667eea;
+    background-color: #0f172a;
+  }
+
+  .info-box {
+    background-color: #0f172a;
+    border-left-color: #3b82f6;
+  }
+
+  .info-box p {
+    color: #60a5fa;
+  }
+
+  .info-text {
+    color: #94a3b8 !important;
+  }
+
+  .file-info {
+    color: #94a3b8;
+  }
+
+  .btn-cancel {
+    background: #334155;
+    color: #e2e8f0;
+  }
+
+  .btn-cancel:hover {
+    background: #475569;
+  }
+
+  .payment-card {
+    border-left-color: #667eea;
+  }
+
+  .payment-header {
+    border-bottom-color: #334155;
+  }
 }
 
 /* Responsive Design */

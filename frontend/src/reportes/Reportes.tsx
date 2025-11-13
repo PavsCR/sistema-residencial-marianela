@@ -39,7 +39,7 @@ const Reportes = () => {
   const cargarCategorias = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3002/api/reportes/categorias', {
+      const response = await fetch('http://localhost:3001/api/reportes/categorias', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -59,13 +59,13 @@ const Reportes = () => {
     try {
       const token = localStorage.getItem('token');
       const params = new URLSearchParams();
-      
+
       Object.entries(filtros).forEach(([key, value]) => {
         if (value) params.append(key, value);
       });
 
       const response = await fetch(
-        `http://localhost:3002/api/reportes/${tipoReporte}?${params.toString()}`,
+        `http://localhost:3001/api/reportes/${tipoReporte}?${params.toString()}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`

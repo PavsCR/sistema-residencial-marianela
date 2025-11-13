@@ -384,6 +384,88 @@
   color: #2c3e50;
 }
 
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .page-container h1 {
+    color: #e2e8f0;
+  }
+
+  .monthly-payment-info,
+  .filters-container,
+  .payment-card,
+  .stat-card {
+    background: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .monthly-payment-info h3 {
+    color: #e2e8f0;
+  }
+
+  .stat-item {
+    background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  }
+
+  .stat-label {
+    color: #94a3b8;
+  }
+
+  .stat-value {
+    color: #f1f5f9;
+  }
+
+  .filter-group label {
+    color: #e2e8f0;
+  }
+
+  .filter-group input {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #e2e8f0;
+  }
+
+  .filter-group input:focus {
+    background-color: #0f172a;
+    border-color: #667eea;
+  }
+
+  .loading-container,
+  .no-payments {
+    color: #94a3b8;
+  }
+
+  .payment-header {
+    border-bottom-color: #334155;
+  }
+
+  .payment-description {
+    color: #e2e8f0;
+  }
+
+  .payment-date {
+    color: #94a3b8;
+  }
+
+  .payment-detail {
+    color: #94a3b8;
+  }
+
+  .payment-detail-label {
+    color: #cbd5e1;
+  }
+
+  .payment-detail-value {
+    color: #94a3b8;
+  }
+
+  .active-filters-summary {
+    background: #0f172a;
+    border-color: #22c55e;
+    color: #86efac;
+  }
+}
+
 @media (max-width: 768px) {
   .casa-info-content {
     flex-direction: column;
