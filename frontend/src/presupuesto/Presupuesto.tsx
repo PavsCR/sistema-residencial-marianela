@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import './Presupuesto.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Categoria {
   idCategoria: number;
   nombre: string;
@@ -51,13 +53,13 @@ const Presupuesto = () => {
       const token = localStorage.getItem('token');
 
       const [movimientosRes, categoriasRes, resumenRes] = await Promise.all([
-        fetch('http://localhost:3001/api/movimientos-financieros', {
+        fetch(`${API_URL}/api/movimientos-financieros`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:3001/api/categorias-financieras', {
+        fetch(`${API_URL}/api/categorias-financieras`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:3001/api/movimientos-financieros/resumen', {
+        fetch(`${API_URL}/api/movimientos-financieros/resumen`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);

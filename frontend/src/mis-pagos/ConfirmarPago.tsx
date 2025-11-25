@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ConfirmarPago.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 const ConfirmarPago = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -77,7 +79,7 @@ const ConfirmarPago = () => {
       formData.append('comprobante', comprobante);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/pagos/confirmar', {
+      const response = await fetch(`${API_URL}/api/pagos/confirmar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './MisPagos.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Pago {
   idPago: number;
   monto: string;
@@ -50,7 +52,7 @@ const MisPagos = () => {
 
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:3001/api/pagos/mi-casa', {
+      const response = await fetch(`${API_URL}/api/pagos/mi-casa`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

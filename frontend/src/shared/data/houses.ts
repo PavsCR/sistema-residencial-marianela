@@ -1,5 +1,7 @@
 import type { HouseStatus } from './House';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 export interface HouseData {
   id: string;
   status: HouseStatus;
@@ -162,7 +164,7 @@ const mapDatabaseStatus = (dbStatus: string): HouseStatus => {
 // Function to fetch houses from API
 export const fetchHousesFromAPI = async (): Promise<HouseData[]> => {
   try {
-    const response = await fetch('http://localhost:3001/api/casas');
+    const response = await fetch(`${API_URL}/api/casas`);
     const data = await response.json();
     
     if (data.success) {

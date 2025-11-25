@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import './SolicitarCambioRolModal.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Usuario {
   idUsuario: number;
   nombreCompleto: string;
@@ -43,7 +45,7 @@ const SolicitarCambioRolModal: React.FC<SolicitarCambioRolModalProps> = ({
       setLoading(true);
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:3001/api/solicitudes/cambio-rol', {
+      const response = await fetch(`${API_URL}/api/solicitudes/cambio-rol`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

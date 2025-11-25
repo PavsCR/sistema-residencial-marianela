@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SolicitudesCambioRol.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Usuario {
   idUsuario: number;
   nombreCompleto: string;
@@ -58,7 +60,7 @@ const SolicitudesCambioRol = () => {
       setError(null);
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:3001/api/solicitudes/cambio-rol', {
+      const response = await fetch(`${API_URL}/api/solicitudes/cambio-rol`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -91,7 +93,7 @@ const SolicitudesCambioRol = () => {
       setReviewLoading(true);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3001/api/solicitudes/cambio-rol/${selectedSolicitud.idSolicitud}/revisar`, {
+      const response = await fetch(`${API_URL}/api/solicitudes/cambio-rol/${selectedSolicitud.idSolicitud}/revisar`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

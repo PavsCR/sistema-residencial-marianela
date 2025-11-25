@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import './Comprobantes.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Pago {
   idPago: number;
   monto: string;
@@ -37,7 +39,7 @@ const Comprobantes = () => {
       setError(null);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/pagos/todos', {
+      const response = await fetch(`${API_URL}/api/pagos/todos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -66,7 +68,7 @@ const Comprobantes = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const imageUrl = `http://localhost:3001/api/pagos/${pago.idPago}/comprobante?token=${token}`;
+      const imageUrl = `${API_URL}/api/pagos/${pago.idPago}/comprobante?token=${token}`;
 
       setModalData({
         pago,
@@ -91,7 +93,7 @@ const Comprobantes = () => {
       setProcessing(true);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3001/api/pagos/${idPago}/estado`, {
+      const response = await fetch(`${API_URL}/api/pagos/${idPago}/estado`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

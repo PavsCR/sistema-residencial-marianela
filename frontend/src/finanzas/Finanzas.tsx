@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Finanzas.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Categoria {
   idCategoria: number;
   nombre: string;
@@ -65,13 +67,13 @@ const Finanzas = () => {
       const token = localStorage.getItem('token');
 
       const [movimientosRes, categoriasRes, resumenRes] = await Promise.all([
-        fetch('http://localhost:3001/api/movimientos-financieros', {
+        fetch(`${API_URL}/api/movimientos-financieros`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:3001/api/categorias-financieras', {
+        fetch(`${API_URL}/api/categorias-financieras`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:3001/api/movimientos-financieros/resumen', {
+        fetch(`${API_URL}/api/movimientos-financieros/resumen`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -103,8 +105,8 @@ const Finanzas = () => {
     try {
       const token = localStorage.getItem('token');
       const url = editingMovimiento
-        ? `http://localhost:3001/api/movimientos-financieros/${editingMovimiento.idMovimiento}`
-        : 'http://localhost:3001/api/movimientos-financieros';
+        ? `${API_URL}/api/movimientos-financieros/${editingMovimiento.idMovimiento}`
+        : `${API_URL}/api/movimientos-financieros`;
 
       const method = editingMovimiento ? 'PUT' : 'POST';
 
@@ -139,7 +141,7 @@ const Finanzas = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3001/api/movimientos-financieros/${id}`, {
+      const response = await fetch(`${API_URL}/api/movimientos-financieros/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

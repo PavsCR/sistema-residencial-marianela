@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './CuentaDesactivada.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface LocationState {
   usuario?: {
     idUsuario: number;
@@ -48,7 +50,7 @@ export default function CuentaDesactivada() {
     try {
       setSubmitting(true);
 
-      const response = await fetch('http://localhost:3001/api/solicitudes/reactivacion', {
+      const response = await fetch(`${API_URL}/api/solicitudes/reactivacion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

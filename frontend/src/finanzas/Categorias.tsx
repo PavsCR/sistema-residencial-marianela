@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Categorias.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Categoria {
   idCategoria: number;
   nombre: string;
@@ -34,7 +36,7 @@ const Categorias = () => {
 
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:3001/api/categorias-financieras', {
+      const response = await fetch(`${API_URL}/api/categorias-financieras`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -61,8 +63,8 @@ const Categorias = () => {
     try {
       const token = localStorage.getItem('token');
       const url = editingCategoria
-        ? `http://localhost:3001/api/categorias-financieras/${editingCategoria.idCategoria}`
-        : 'http://localhost:3001/api/categorias-financieras';
+        ? `${API_URL}/api/categorias-financieras/${editingCategoria.idCategoria}`
+        : `${API_URL}/api/categorias-financieras`;
 
       const method = editingCategoria ? 'PUT' : 'POST';
 
@@ -97,7 +99,7 @@ const Categorias = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3001/api/categorias-financieras/${id}`, {
+      const response = await fetch(`${API_URL}/api/categorias-financieras/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

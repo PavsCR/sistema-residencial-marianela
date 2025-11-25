@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext'
 import { authFetch } from '../services/api'
 import './MiCasa.css'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface HouseMember {
   idUsuario: number
   nombreCompleto: string
@@ -45,7 +47,7 @@ const MiCasa = () => {
   useEffect(() => {
     const fetchHouseInfo = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/usuarios/mi-casa', {
+        const response = await fetch(`${API_URL}/api/usuarios/mi-casa`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           }

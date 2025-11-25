@@ -3,6 +3,8 @@ import './Reportes.css';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+const API_URL = import.meta.env.VITE_API_URL || '${API_URL}';
+
 type TipoReporte = 'pagos' | 'movimientos' | 'usuarios' | 'casas';
 
 interface Filtros {
@@ -39,7 +41,7 @@ const Reportes = () => {
   const cargarCategorias = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/reportes/categorias', {
+      const response = await fetch('${API_URL}/api/reportes/categorias', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -65,7 +67,7 @@ const Reportes = () => {
       });
 
       const response = await fetch(
-        `http://localhost:3001/api/reportes/${tipoReporte}?${params.toString()}`,
+        `${API_URL}/api/reportes/${tipoReporte}?${params.toString()}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './PagosCasa.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Pago {
   idPago: number;
   monto: string;
@@ -62,7 +64,7 @@ const PagosCasa = () => {
       setError(null);
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3001/api/pagos/casa/${numeroCasa}`, {
+      const response = await fetch(`${API_URL}/api/pagos/casa/${numeroCasa}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -86,7 +88,7 @@ const PagosCasa = () => {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch(`http://localhost:3001/api/casas/${numeroCasa}/estado-pago`, {
+      const response = await fetch(`${API_URL}/api/casas/${numeroCasa}/estado-pago`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +162,7 @@ const PagosCasa = () => {
       formData.append('metodoPago', comprobanteForm.metodoPago);
       formData.append('comprobante', file);
 
-      const response = await fetch('http://localhost:3001/api/pagos/confirmar-admin', {
+      const response = await fetch(`${API_URL}/api/pagos/confirmar-admin`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -198,7 +200,7 @@ const PagosCasa = () => {
   const verComprobante = (idPago: number) => {
     const token = localStorage.getItem('token');
     window.open(
-      `http://localhost:3001/api/pagos/${idPago}/comprobante?token=${token}`,
+      `${API_URL}/api/pagos/${idPago}/comprobante?token=${token}`,
       '_blank'
     );
   };

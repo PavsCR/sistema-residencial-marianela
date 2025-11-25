@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PagosGeneral.css';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 interface Casa {
   idCasa: number;
   numeroCasa: string;
@@ -35,7 +37,7 @@ const PagosGeneral = () => {
       setError(null);
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:3001/api/pagos/casas-resumen', {
+      const response = await fetch(`${API_URL}/api/pagos/casas-resumen`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
