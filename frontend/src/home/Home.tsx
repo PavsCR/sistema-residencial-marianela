@@ -8,7 +8,7 @@ import { fetchHousesFromAPI, type HouseData } from '../shared/data/houses';
 
 const Home = () => {
   const [houses, setHouses] = useState<HouseData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useAuth();
 

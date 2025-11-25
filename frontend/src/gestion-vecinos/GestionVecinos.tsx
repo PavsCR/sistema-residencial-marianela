@@ -8,7 +8,7 @@ const GestionVecinos = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedHouseId, setSelectedHouseId] = useState('');
   const [houses, setHouses] = useState<HouseData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
     const loadHouses = async () => {
