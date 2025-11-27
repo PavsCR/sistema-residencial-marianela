@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/api';
+import residencialImagen from '../assets/residencial_imagen.png';
 import './Login.css';
 
 interface LoginProps {
@@ -51,67 +52,70 @@ export default function Login({ onLoginSuccess }: LoginProps) {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h1>Sistema Residencial Marianela</h1>
-        <h2>Iniciar Sesión</h2>
+      <div className="login-content">
+        <div className="login-card">
+          <h1>Residencial Marianela</h1>
+          <h2>Iniciar Sesión</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="correo">Correo Electrónico</label>
-            <input
-              id="correo"
-              type="email"
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
-              required
-              placeholder="tu@email.com"
-              disabled={loading}
-            />
-          </div>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="correo">Correo Electrónico</label>
+              <input
+                id="correo"
+                type="email"
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                required
+                placeholder="tu@email.com"
+                disabled={loading}
+              />
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="contrasena">Contraseña</label>
-            <input
-              id="contrasena"
-              type="password"
-              value={contrasena}
-              onChange={(e) => setContrasena(e.target.value)}
-              required
-              placeholder="••••••••"
-              disabled={loading}
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="contrasena">Contraseña</label>
+              <input
+                id="contrasena"
+                type="password"
+                value={contrasena}
+                onChange={(e) => setContrasena(e.target.value)}
+                required
+                placeholder="••••••••"
+                disabled={loading}
+              />
+            </div>
 
-          {error && <div className="error-message">{error}</div>}
+            {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" disabled={loading} className="btn-login">
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </button>
-        </form>
-
-        <div className="login-footer">
-          <p style={{ textAlign: 'center', marginTop: '1rem' }}>
-            ¿No tienes cuenta?{' '}
-            <button
-              onClick={() => navigate('/registro')}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#007bff',
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                fontSize: '1rem',
-              }}
-            >
-              Solicitar registro
+            <button type="submit" disabled={loading} className="btn-login">
+              {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
-          </p>
+          </form>
 
-          <p className="test-credentials">
-            <strong>Credenciales de prueba:</strong><br />
-            Email: superadmin@residencialmarianela.com<br />
-            Contraseña: SuperAdmin2025!
-          </p>
+          <div className="login-footer">
+            <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+              ¿No tienes cuenta?{' '}
+              <button
+                onClick={() => navigate('/registro')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#007bff',
+                  textDecoration: 'underline',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                }}
+              >
+                Solicitar registro
+              </button>
+            </p>
+          </div>
+        </div>
+
+        <div className="login-banner">
+          <img src={residencialImagen} alt="Residencial Marianela" className="banner-image" />
+          <div className="banner-logo">
+            <img src="/logo_residencial_marianela.png" alt="Logo Residencial Marianela" />
+          </div>
         </div>
       </div>
     </div>

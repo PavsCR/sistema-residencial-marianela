@@ -1,3 +1,12 @@
+/* Main content wrapper - accounts for fixed navbar height */
+.main-content {
+  padding-top: 100px; /* 80px navbar + 20px spacing */
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 2rem;
+  min-height: calc(100vh - 80px);
+}
+
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -15,4 +24,11 @@
   color: #7f8c8d;
   font-size: 1.1rem;
   line-height: 1.6;
+}
+
+/* Responsive adjustments for navbar height changes */
+@media (max-width: 768px) {
+  .main-content {
+    padding-top: 90px; /* 70px navbar mobile + 20px spacing */
+  }
 }

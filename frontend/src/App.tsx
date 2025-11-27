@@ -39,7 +39,7 @@ function AppContent() {
   return (
     <Router>
       <Navbar />
-      <main style={{ paddingTop: '20px', padding: '2rem' }}>
+      <main className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mis-pagos" element={<MisPagos />} />
